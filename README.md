@@ -1,6 +1,3 @@
-# Auto-MPM-Lock-Tool-for-Linux
-
-
 # HOW TO USE:
 # Copy the two files (.sh and .tgz) to Desktop and type below command on Terminal to run this script:
 # (1) cd ~/Desktop
