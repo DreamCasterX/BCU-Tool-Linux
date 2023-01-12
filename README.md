@@ -1,7 +1,7 @@
 # HOW TO USE:
 # Copy the two files (.sh and .tgz) to Desktop and type below command on Terminal to run this script:
 # (1) cd ~/Desktop
-# (2) sudo bash ./MPM_Lock.sh
+# (2) sudo ./MPM_Lock.sh
 
 # NOTE: 
 # If make/gcc/g++ tools are not pre-installed (e.g., clean OS), install them before running this script.
