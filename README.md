@@ -9,14 +9,14 @@ sudo ./MPM_Lock.sh
 
 ## NOTE: 
 ### If make/gcc/g++ tools are not pre-installed (e.g., clean OS), install them before running this script.
-## On Ubuntu:
+### On Ubuntu:
 ```sh
 sudo apt update
 sudo apt install build-essential 
 ```
 
 
-## On RHEL:
+### On RHEL:
 ```sh
 sudo dnf update
 sudo dnf groupinstall "Development Tools"
