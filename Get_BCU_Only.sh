@@ -6,7 +6,7 @@
 # HOW TO USE:
 # Copy the two files (.sh and .tgz) to Desktop and type below command on Terminal to run this script:
 # (1) cd ~/Desktop
-# (2) ./MPM_Lock.sh
+# (2) ./Get_BCU_Only.sh
 
 # NOTE: 
 # If make/gcc/g++ tools are not pre-installed (e.g., clean OS), install them before running this script.
@@ -61,14 +61,7 @@ if [ $? == 0 ]; then
 	sudo bash ./hp-repsetup -g -a -q
 	sudo chown $USER "HPSETUP.TXT"
 	sudo chmod o+w HPSETUP.TXT
-	sed -i 's/*Unlock/Unlock/' HPSETUP.TXT
-	sed -i 's/	Lock/	*Lock/' HPSETUP.TXT
-	# sed -i 's/	Tracking/	Test123/' HPSETUP.TXT 	# Uncomment this for Asset Tag testing
-	# sed -i 's/	Test123/	Tracking/' HPSETUP.TXT 	 # Recover to default 
-	cat HPSETUP.TXT | grep -A 2 "Manufacturing Programming Mode"
-	# cat HPSETUP.TXT | grep -A 1 "Asset Tracking Number"   # Uncomment this for Asset Tag testing
-	sudo bash ./hp-repsetup -s -q
-	echo "**Please reboot the system to take effect**"
+	echo "**BCU got. Please check HPSETUP.TXT**"
 	echo ""
 else
 	echo "**ERROR: HP UEFI module is NOT installed successfully !!**"
