@@ -15,7 +15,7 @@
 # (2) sudo apt install build-essential 
 #
 # On RHEL:
-# (1) sudo dnf makecache
+# (1) sudo dnf update
 # (2) sudo dnf groupinstall "Development Tools"
 
 
