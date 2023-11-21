@@ -114,7 +114,7 @@ BCU=/opt/hp/hp-flash
 	cd $BCU
 	sudo bash ./hp-repsetup -g -a -q
 	sudo chown $USER "HPSETUP.TXT"
-	sudo chmod o+w HPSETUP.TXT && ln -s $BCU/HPSETUP.TXT /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT
+	sudo chmod o+w HPSETUP.TXT && ln -sf $BCU/HPSETUP.TXT /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT
 	echo "✅ BCU got. Please check HPSETUP.TXT"
 	echo ""
   # else

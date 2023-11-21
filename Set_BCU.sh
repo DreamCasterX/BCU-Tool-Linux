@@ -11,7 +11,7 @@
 # HOW TO USE:
 # Copy the whole BCU-Tool-Linux folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
 # (1) cd BCU-Tool-Linux
-# (2) bash MPM_Lock.sh
+# (2) bash Set_BCU_Only.sh
 
 
 # SET FILE PATH
@@ -72,15 +72,19 @@ else
 fi
 
 
-# LOCK MPM
+# SET BCU
 cd $APP
-sudo bash ./hp-repsetup -g -a -q
-sudo chown $USER "HPSETUP.TXT"
-sudo chmod o+w HPSETUP.TXT
-sed -i 's/*Unlock/Unlock/' HPSETUP.TXT
-sed -i 's/	Lock/	*Lock/' HPSETUP.TXT
-cat HPSETUP.TXT | grep -A 2 "Manufacturing Programming Mode"
-sudo bash ./hp-repsetup -s -q
-[[ $? == 0 ]] && echo  -e "✅ Please reboot the system to lock MPM\n" || echo -e "❌ ERROR: Failed to lock MPM. Please re-run the script.\n"
+if [[ -L /home/$USERNAME/BCU-Tool-Linux/HPSETUP.txt ]]; then 
+	sudo bash ./hp-repsetup -s -q 
+	echo  -e "✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
+fi
+if [[ ! -L /home/$USERNAME/BCU-Tool-Linux/HPSETUP.txt && -f /home/$USERNAME/BCU-Tool-Linux/HPSETUP.txt ]]; then
+	cp /home/$USERNAME/BCU-Tool-Linux/HPSETUP.txt $APP/HPSETUP.txt
+	sudo bash ./hp-repsetup -s -q
+	echo  -e "✅ BCU is set. Please reboot the system to take effect.\n"
+else
+	echo -e "❌ ERROR: Failed to set BCU. Please re-run the script.\n"
+fi
+
 
 
