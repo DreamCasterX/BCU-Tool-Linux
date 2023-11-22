@@ -36,7 +36,7 @@ CheckNetwork() {
 case $PKG in
    "apt")
      	dpkg -l | grep build-essential > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt-get install build-essential -y || :
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt-get install build-essential -y || :  # gcc-12 may be required for some distro
      	dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
      	[[ $? != 0 ]] && CheckNetwork && sudo apt install linux-headers-$(uname -r) -y || :
    	;;
@@ -73,11 +73,11 @@ fi
 # LOCK MPM
 cd $APP
 sudo bash ./hp-repsetup -g -a -q
-sudo chown $USER "HPSETUP.TXT"
-sudo chmod o+w HPSETUP.TXT
-sed -i 's/*Unlock/Unlock/' HPSETUP.TXT
-sed -i 's/	Lock/	*Lock/' HPSETUP.TXT
-cat HPSETUP.TXT | grep -A 2 "Manufacturing Programming Mode"
+sudo chown $USER "HPSETUP.TXT" 2> /dev/null
+sudo chmod o+w HPSETUP.TXT 2> /dev/null
+sed -i 's/*Unlock/Unlock/' HPSETUP.TXT 2> /dev/null
+sed -i 's/	Lock/	*Lock/' HPSETUP.TXT 2> /dev/null
+cat HPSETUP.TXT | grep -A 2 "Manufacturing Programming Mode" 2> /dev/null
 sudo bash ./hp-repsetup -s -q
 [[ $? == 0 ]] && echo  -e "\n✅ Please reboot the system to lock MPM\n" || echo -e "\n❌ ERROR: Failed to lock MPM. Please re-run the script.\n"
 

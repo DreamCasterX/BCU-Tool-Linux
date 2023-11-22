@@ -6,18 +6,21 @@
 
 # NOTE: 
 # Internet connection is required in order to install required dependencies
+# BIOS binary can be obtained from the BIOS package/GLOBAL/BIOS/xxx_xxxxxx.bin (non-32MB) 
 
 
 # HOW TO USE:
 # Copy the whole BCU-Tool-Linux folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
 # (1) cd BCU-Tool-Linux
-# (2) bash Set_BCU_Only.sh
+# (2) bash Get_BCU_Only.sh
 
 
 # SET FILE PATH
 SPQ=$PWD/sp143035.tgz
 MOD=$PWD/sp143035/hpflash-3.22/non-rpms/hpuefi-mod-3.04
 APP=$PWD/sp143035/hpflash-3.22/non-rpms/hp-flash-3.22_x86_64
+WDIR=/home/$USER/BCU-Tool-Linux
+
 
 
 # CHECK INTERNET CONNETION
@@ -36,7 +39,7 @@ CheckNetwork() {
 case $PKG in
    "apt")
      	dpkg -l | grep build-essential > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt-get install build-essential -y || : # gcc-12 may be required for some distro
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt-get install build-essential gcc-12 -y || :
      	dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
      	[[ $? != 0 ]] && CheckNetwork && sudo apt install linux-headers-$(uname -r) -y || :
    	;;
@@ -70,19 +73,9 @@ else
 fi
 
 
-# SET BCU
+# FLASH BIOS
 cd $APP
-if [[ -L /home/$USER/BCU-Tool-Linux/HPSETUP.TXT ]]; then 
-	sudo bash ./hp-repsetup -s -q 
-	echo  -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
-fi
-if [[ ! -L /home/$USER/BCU-Tool-Linux/HPSETUP.TXT && -f /home/$USER/BCU-Tool-Linux/HPSETUP.TXT ]]; then
-	mv /home/$USER/BCU-Tool-Linux/HPSETUP.TXT $APP/HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT /home/$USER/BCU-Tool-Linux/HPSETUP.TXT 2> /dev/null
-	sudo bash ./hp-repsetup -s -q
-	echo  -e "\n✅ BCU is set. Please reboot the system to take effect.\n"
-else
-	echo -e "\n❌ ERROR: Failed to set BCU. Please re-run the script.\n"
-fi
-
+! ls $WDIR | grep ".bin$" > /dev/null && echo -e "❌ ERROR: BIN file is not found! \n" && exit 0 || sudo bash ./hp-flash $WDIR/$(ls $WDIR | grep ".bin$")
+# [[ $? == 0 ]] && echo  -e "\n✅ Please reboot the system to start BIOS flash.\n" || echo -e "\n❌ ERROR: Failed to flash BIOS. Please re-run the script.\n"
 
 
