@@ -22,7 +22,7 @@ APP=$PWD/sp143035/hpflash-3.22/non-rpms/hp-flash-3.22_x86_64
 
 # CHECK INTERNET CONNETION
 CheckNetwork() {
-	nslookup "hp.com" > /dev/null
+	wget -q --spider www.google.com > /dev/null
 	[[ $? != 0 ]] && echo -e "❌ No Internet connection! Check your network and retry.\n" && exit $ERRCODE || :
 }
 
@@ -35,11 +35,10 @@ CheckNetwork() {
 [[ -f /usr/bin/apt ]] && PKG=apt || PKG=dnf
 case $PKG in
    "apt")
-   	[[ ! -f /usr/bin/make ]] && CheckNetwork && sudo apt install make -y || :
-     	dpkg -l | grep kernel-devel-$(uname -r) > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt install kernel-devel-$(uname -r) -y || :
-     	dpkg -l | grep kernel-headers-$(uname -r) > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt install kernel-headers-$(uname -r) -y || :
+     	dpkg -l | grep build-essential > /dev/null 
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt-get install build-essential -y || :
+     	dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt install linux-headers-$(uname -r) -y || :
    	;;
    "dnf")
    	[[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
@@ -73,12 +72,12 @@ fi
 
 # SET BCU
 cd $APP
-if [[ -L /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT ]]; then 
+if [[ -L /home/$USER/BCU-Tool-Linux/HPSETUP.TXT ]]; then 
 	sudo bash ./hp-repsetup -s -q 
 	echo  -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
 fi
-if [[ ! -L /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT && -f /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT ]]; then
-	mv /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT $APP/HPSETUP.TXT && ln -sf $APP/HPSETUP.TXT /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT
+if [[ ! -L /home/$USER/BCU-Tool-Linux/HPSETUP.TXT && -f /home/$USER/BCU-Tool-Linux/HPSETUP.TXT ]]; then
+	mv /home/$USER/BCU-Tool-Linux/HPSETUP.TXT $APP/HPSETUP.TXT && ln -sf $APP/HPSETUP.TXT /home/$USER/BCU-Tool-Linux/HPSETUP.TXT
 	sudo bash ./hp-repsetup -s -q
 	echo  -e "\n✅ BCU is set. Please reboot the system to take effect.\n"
 else
