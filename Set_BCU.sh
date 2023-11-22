@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: Mike Lu
-# CHANGE DATE: 11/21/2023
+# CHANGE DATE: 11/22/2023
 
 
 # NOTE: 
@@ -21,38 +21,37 @@ APP=$PWD/sp143035/hpflash-3.22/non-rpms/hp-flash-3.22_x86_64
 
 
 # CHECK INTERNET CONNETION
-nslookup "hp.com" > /dev/null
-if [ $? != 0 ]; then 
-	echo "❌ No Internet connection! Please check your network" && exit 0
-fi
+CheckNetwork() {
+	nslookup "hp.com" > /dev/null
+	[[ $? != 0 ]] && echo -e "❌ No Internet connection! Check your network and retry.\n" && exit $ERRCODE || :
+}
 
 
 # EXTRACT HP LINUX TOOLS
-if [ ! -f $SPQ ]; then
-	echo "❌ ERROR: spxxxxxx.tgz file is not found!"
-	read -p 'Please fix the above error first and re-try.' && exit 0	
-else
-	tar xzf $SPQ
-fi
+[[ ! -f $SPQ ]] && echo -e "❌ ERROR: spxxxxxx.tgz file is not found!\n" && exit 0 || tar xzf $SPQ
 
 
 # INTALL DEPENDENCIES
 [[ -f /usr/bin/apt ]] && PKG=apt || PKG=dnf
 case $PKG in
    "apt")
-   	[[ ! -f /usr/bin/make ]] && sudo apt install make -y
-   	sudo apt install linux-headers-4.15.0-32-generic -y
+   	[[ ! -f /usr/bin/make ]] && CheckNetwork && sudo apt install make -y || :
+     	dpkg -l | grep kernel-devel-$(uname -r) > /dev/null 
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt install kernel-devel-$(uname -r) -y || :
+     	dpkg -l | grep kernel-headers-$(uname -r) > /dev/null 
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt install kernel-headers-$(uname -r) -y || :
    	;;
    "dnf")
-   	[[ ! -f /usr/bin/make ]] && sudo dnf install make -y
-   	rpm -q kernel-devel-$(uname -r) | grep 'not installed' > /dev/null ; [[ $? == 0 ]] && sudo dnf install kernel-devel-$(uname -r) -y
-   	rpm -q kernel-headers-$(uname -r) | grep 'not installed' > /dev/null ; [[ $? == 0 ]] && sudo dnf install kernel-headers-$(uname -r) -y
+   	[[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
+   	rpm -q kernel-devel-$(uname -r) | grep 'not installed' > /dev/null 
+   	[[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-devel-$(uname -r) -y || :
+   	rpm -q kernel-headers-$(uname -r) | grep 'not installed' > /dev/null 
+   	[[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
    	;;
 esac
 
 
 # INSTALL UEFI MODULE
-# /sys/module/hpuefi
 if [[ ! -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && ! -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi ]]; then
 	cd $MOD
 	make
@@ -64,7 +63,7 @@ fi
 
 # INSTALL REPLICATED SETUP UTILITY
 lsmod | grep hpuefi
-if [[ $? != 0  && ! -f /opt/hp/hp-flash/bin/hp-repsetup ]]; then
+if [[ ! -d /sys/module/hpuefi && ! -f /opt/hp/hp-flash/bin/hp-repsetup ]]; then
 	cd $APP
 	sudo bash ./install.sh
 else
@@ -74,16 +73,16 @@ fi
 
 # SET BCU
 cd $APP
-if [[ -L /home/$USERNAME/BCU-Tool-Linux/HPSETUP.txt ]]; then 
+if [[ -L /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT ]]; then 
 	sudo bash ./hp-repsetup -s -q 
-	echo  -e "✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
+	echo  -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
 fi
-if [[ ! -L /home/$USERNAME/BCU-Tool-Linux/HPSETUP.txt && -f /home/$USERNAME/BCU-Tool-Linux/HPSETUP.txt ]]; then
-	cp /home/$USERNAME/BCU-Tool-Linux/HPSETUP.txt $APP/HPSETUP.txt
+if [[ ! -L /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT && -f /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT ]]; then
+	mv /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT $APP/HPSETUP.TXT && ln -sf $APP/HPSETUP.TXT /home/$USERNAME/BCU-Tool-Linux/HPSETUP.TXT
 	sudo bash ./hp-repsetup -s -q
-	echo  -e "✅ BCU is set. Please reboot the system to take effect.\n"
+	echo  -e "\n✅ BCU is set. Please reboot the system to take effect.\n"
 else
-	echo -e "❌ ERROR: Failed to set BCU. Please re-run the script.\n"
+	echo -e "\n❌ ERROR: Failed to set BCU. Please re-run the script.\n"
 fi
 
 
