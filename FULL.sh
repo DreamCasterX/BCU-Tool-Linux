@@ -1,25 +1,30 @@
 #!/usr/bin/env bash
 
 # CREATOR: Mike Lu
-# CHANGE DATE: 11/22/2023
+# CHANGE DATE: 11/23/2023
 
 
 # NOTE: 
 # Internet connection is required in order to install required dependencies
-# BIOS binary can be obtained from the BIOS package/GLOBAL/BIOS/xxx_xxxxxx.bin (non-32MB) 
+# BIOS source can be obtained from the Pulsar BIOS package/GLOBAL/BIOS/xxx_xxxxxx.bin (*non-32MB)
+# To flash BIOS, put the .bin file to 'HP-BIOS-Tool-Linux' root directory 
 
 
 # HOW TO USE:
-# Copy the whole BCU-Tool-Linux folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
-# (1) cd BCU-Tool-Linux
-# (2) bash Get_BCU_Only.sh
+# Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
+# (1) cd HP-BIOS-Tool-Linux
+# (2) bash FULL.sh
 
 
 # SET FILE PATH
 SPQ=$PWD/sp143035.tgz
 MOD=$PWD/sp143035/hpflash-3.22/non-rpms/hpuefi-mod-3.04
 APP=$PWD/sp143035/hpflash-3.22/non-rpms/hp-flash-3.22_x86_64
-WDIR=/home/$USER/BCU-Tool-Linux
+WDIR=/home/$USER/HP-BIOS-Tool-Linux
+
+
+# RESTRICT USER ACCOUNT
+[[ $EUID == 0 ]] && echo -e "⚠️ Please run as non-root user.\n" && exit 0
 
 
 # CHECK INTERNET CONNETION
@@ -38,9 +43,9 @@ CheckNetwork() {
 case $PKG in
    "apt")
      	dpkg -l | grep build-essential > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt-get install build-essential -y || : # gcc-12 may be required for some distro
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
      	dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt install linux-headers-$(uname -r) -y || :
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
    	;;
    "dnf")
    	[[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
@@ -60,6 +65,7 @@ if [[ ! -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && ! -f /lib
 else
 	echo "**HP UEFI module is installed**"
 fi
+[[ $? != 0 ]] && exit $ERRORCODE
 
 
 # INSTALL REPLICATED SETUP UTILITY
@@ -72,24 +78,28 @@ else
 fi
 
 
+# DEFINE FUNCTIONS
 GET_BCU() {
 	cd $APP
 	sudo bash ./hp-repsetup -g -a -q
-	sudo chown $USER "HPSETUP.TXT" 2> /dev/null
-	sudo chmod o+w HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT /home/$USER/BCU-Tool-Linux/HPSETUP.TXT 2> /dev/null
+	sudo chown $USER HPSETUP.TXT 2> /dev/null
+	sudo chmod o+w HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT $WDIR/HPSETUP.TXT 2> /dev/null
 	[[ $? == 0 ]] && echo -e "\n✅ BCU got. Please check HPSETUP.TXT\n" || echo -e "\n❌ ERROR: Failed to get BCU. Please re-run the script.\n"
 }
 
 SET_BCU() {
 	cd $APP
-	if [[ -L /home/$USER/BCU-Tool-Linux/HPSETUP.TXT ]]; then 
+	if [[ -L /$WDIR/HPSETUP.TXT ]]; then 
 		sudo bash ./hp-repsetup -s -q 
-		echo  -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
+		echo -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
 	fi
-	if [[ ! -L /home/$USER/BCU-Tool-Linux/HPSETUP.TXT && -f /home/$USER/BCU-Tool-Linux/HPSETUP.TXT ]]; then
-		mv /home/$USER/BCU-Tool-Linux/HPSETUP.TXT $APP/HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT /home/$USER/BCU-Tool-Linux/HPSETUP.TXT 2> /dev/null
+	if [[ ! -L $WDIR/HPSETUP.TXT && -f $WDIR/HPSETUP.TXT ]]; then
+		mv $WDIR/HPSETUP.TXT $APP/HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT $WDIR/HPSETUP.TXT 2> /dev/null
 		sudo bash ./hp-repsetup -s -q
-		echo  -e "\n✅ BCU is set. Please reboot the system to take effect.\n"
+		echo -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
+	fi
+	if [[ ! -L $WDIR/HPSETUP.TXT && ! -f $WDIR/HPSETUP.TXT && ! -f $APP/HPSETUP.TXT ]]; then
+		echo -e "❌ ERROR: BCU file is not found!\n" && exit 0
 	else
 		echo -e "\n❌ ERROR: Failed to set BCU. Please re-run the script.\n"
 	fi
@@ -98,23 +108,25 @@ SET_BCU() {
 LOCK_MPM() {
 	cd $APP
 	sudo bash ./hp-repsetup -g -a -q
-	sudo chown $USER "HPSETUP.TXT" 2> /dev/null
+	sudo chown $USER HPSETUP.TXT 2> /dev/null
 	sudo chmod o+w HPSETUP.TXT 2> /dev/null
 	sed -i 's/*Unlock/Unlock/' HPSETUP.TXT 2> /dev/null
 	sed -i 's/	Lock/	*Lock/' HPSETUP.TXT 2> /dev/null
-	cat HPSETUP.TXT | grep -A 2 "Manufacturing Programming Mode" 2> /dev/null
 	sudo bash ./hp-repsetup -s -q
-	[[ $? == 0 ]] && echo  -e "\n✅ Please reboot the system to lock MPM\n" || echo -e "\n❌ ERROR: Failed to lock MPM. Please re-run the script.\n"
+	cat HPSETUP.TXT | grep -A 2 "Manufacturing Programming Mode" 2> /dev/null
+	[[ $? == 0 ]] && echo -e "\n✅ Please reboot the system to lock MPM.\n" || echo -e "\n❌ ERROR: Failed to lock MPM. Please re-run the script.\n"
 }
 
 FLASH_BIOS() {
 	cd $APP
-	! ls $WDIR | grep ".bin$" > /dev/null && echo -e "❌ ERROR: BIN file is not found! \n" && exit 0 || sudo bash ./hp-flash $WDIR/$(ls $WDIR | grep ".bin$")
-	# [[ $? == 0 ]] && echo  -e "\n✅ Please reboot the system to start BIOS flash.\n" || echo -e "\n❌ ERROR: Failed to flash BIOS. Please re-run the script.\n"
+	echo -e "\nSystem BIOS info: 
+$(sudo dmidecode -t 0 | grep -A1 Version:)"
+	! ls $WDIR | grep ".bin$" > /dev/null && echo -e "\n❌ ERROR: BIN file is not found! \n" && exit 0 || sudo bash ./hp-flash $WDIR/$(ls $WDIR | grep ".bin$")
 }
 
 
-echo -e "  \nGet BCU [g]   Set BCU [s]   Lock MPM [l]   Flash BIOS [f] \n"
+# USER INTERACTION
+echo -e "  \nGet BCU [G]   Set BCU [S]   Lock MPM [L]   Flash BIOS [F]\n"
 read -p "Select an action: " ACTION
 while [[ $ACTION != [GgSsLlFf] ]]
 do

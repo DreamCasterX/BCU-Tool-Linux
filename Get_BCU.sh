@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: Mike Lu
-# CHANGE DATE: 11/22/2023
+# CHANGE DATE: 11/23/2023
 
 
 # NOTE: 
@@ -9,8 +9,8 @@
 
 
 # HOW TO USE:
-# Copy the whole BCU-Tool-Linux folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
-# (1) cd BCU-Tool-Linux
+# Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
+# (1) cd HP-BIOS-Tool-Linux
 # (2) bash Get_BCU_Only.sh
 
 
@@ -18,6 +18,11 @@
 SPQ=$PWD/sp143035.tgz
 MOD=$PWD/sp143035/hpflash-3.22/non-rpms/hpuefi-mod-3.04
 APP=$PWD/sp143035/hpflash-3.22/non-rpms/hp-flash-3.22_x86_64
+WDIR=/home/$USER/HP-BIOS-Tool-Linux
+
+
+# RESTRICT USER ACCOUNT
+[[ $EUID == 0 ]] && echo -e "⚠️ Please run as non-root user.\n" && exit 0
 
 
 # CHECK INTERNET CONNETION
@@ -36,9 +41,9 @@ CheckNetwork() {
 case $PKG in
    "apt")
      	dpkg -l | grep build-essential > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt-get install build-essential -y || :  # gcc-12 may be required for some distro
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
      	dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt install linux-headers-$(uname -r) -y || :
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
    	;;
    "dnf")
    	[[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
@@ -73,8 +78,8 @@ fi
 # GET BCU
 cd $APP
 sudo bash ./hp-repsetup -g -a -q
-sudo chown $USER "HPSETUP.TXT" 2> /dev/null
-sudo chmod o+w HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT /home/$USER/BCU-Tool-Linux/HPSETUP.TXT 2> /dev/null
+sudo chown $USER HPSETUP.TXT 2> /dev/null
+sudo chmod o+w HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT $WDIR/HPSETUP.TXT 2> /dev/null
 [[ $? == 0 ]] && echo -e "\n✅ BCU got. Please check HPSETUP.TXT\n" || echo -e "\n❌ ERROR: Failed to get BCU. Please re-run the script.\n"
 
 

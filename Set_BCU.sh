@@ -9,15 +9,20 @@
 
 
 # HOW TO USE:
-# Copy the whole BCU-Tool-Linux folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
-# (1) cd BCU-Tool-Linux
-# (2) bash Set_BCU_Only.sh
+# Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
+# (1) cd HP-BIOS-Tool-Linux
+# (2) bash Set_BCU.sh
 
 
 # SET FILE PATH
 SPQ=$PWD/sp143035.tgz
 MOD=$PWD/sp143035/hpflash-3.22/non-rpms/hpuefi-mod-3.04
 APP=$PWD/sp143035/hpflash-3.22/non-rpms/hp-flash-3.22_x86_64
+WDIR=/home/$USER/HP-BIOS-Tool-Linux
+
+
+# RESTRICT USER ACCOUNT
+[[ $EUID == 0 ]] && echo -e "⚠️ Please run as non-root user.\n" && exit 0
 
 
 # CHECK INTERNET CONNETION
@@ -36,9 +41,9 @@ CheckNetwork() {
 case $PKG in
    "apt")
      	dpkg -l | grep build-essential > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt-get install build-essential -y || : # gcc-12 may be required for some distro
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
      	dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt install linux-headers-$(uname -r) -y || :
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
    	;;
    "dnf")
    	[[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
@@ -72,14 +77,17 @@ fi
 
 # SET BCU
 cd $APP
-if [[ -L /home/$USER/BCU-Tool-Linux/HPSETUP.TXT ]]; then 
+if [[ -L /$WDIR/HPSETUP.TXT ]]; then 
 	sudo bash ./hp-repsetup -s -q 
-	echo  -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
+	echo -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
 fi
-if [[ ! -L /home/$USER/BCU-Tool-Linux/HPSETUP.TXT && -f /home/$USER/BCU-Tool-Linux/HPSETUP.TXT ]]; then
-	mv /home/$USER/BCU-Tool-Linux/HPSETUP.TXT $APP/HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT /home/$USER/BCU-Tool-Linux/HPSETUP.TXT 2> /dev/null
+if [[ ! -L $WDIR/HPSETUP.TXT && -f $WDIR/HPSETUP.TXT ]]; then
+	mv $WDIR/HPSETUP.TXT $APP/HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT $WDIR/HPSETUP.TXT 2> /dev/null
 	sudo bash ./hp-repsetup -s -q
-	echo  -e "\n✅ BCU is set. Please reboot the system to take effect.\n"
+	echo -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
+fi
+if [[ ! -L $WDIR/HPSETUP.TXT && ! -f $WDIR/HPSETUP.TXT && ! -f $APP/HPSETUP.TXT ]]; then
+	echo -e "❌ ERROR: BCU file is not found!\n" && exit 0
 else
 	echo -e "\n❌ ERROR: Failed to set BCU. Please re-run the script.\n"
 fi

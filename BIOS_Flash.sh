@@ -1,26 +1,30 @@
 #!/usr/bin/env bash
 
 # CREATOR: Mike Lu
-# CHANGE DATE: 11/22/2023
+# CHANGE DATE: 11/23/2023
 
 
 # NOTE: 
 # Internet connection is required in order to install required dependencies
 # BIOS binary can be obtained from the BIOS package/GLOBAL/BIOS/xxx_xxxxxx.bin (non-32MB) 
+# To flash BIOS, put the .bin file to 'HP-BIOS-Tool-Linux' root directory 
 
 
 # HOW TO USE:
-# Copy the whole BCU-Tool-Linux folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
-# (1) cd BCU-Tool-Linux
-# (2) bash Get_BCU_Only.sh
+# Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
+# (1) cd HP-BIOS-Tool-Linux
+# (2) bash BIOS_Flash.sh
 
 
 # SET FILE PATH
 SPQ=$PWD/sp143035.tgz
 MOD=$PWD/sp143035/hpflash-3.22/non-rpms/hpuefi-mod-3.04
 APP=$PWD/sp143035/hpflash-3.22/non-rpms/hp-flash-3.22_x86_64
-WDIR=/home/$USER/BCU-Tool-Linux
+WDIR=/home/$USER/HP-BIOS-Tool-Linux
 
+
+# RESTRICT USER ACCOUNT
+[[ $EUID == 0 ]] && echo -e "⚠️ Please run as non-root user.\n" && exit 0
 
 
 # CHECK INTERNET CONNETION
@@ -39,9 +43,9 @@ CheckNetwork() {
 case $PKG in
    "apt")
      	dpkg -l | grep build-essential > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt-get install build-essential gcc-12 -y || :
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
      	dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
-     	[[ $? != 0 ]] && CheckNetwork && sudo apt install linux-headers-$(uname -r) -y || :
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
    	;;
    "dnf")
    	[[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
@@ -75,7 +79,9 @@ fi
 
 # FLASH BIOS
 cd $APP
+echo -e "\nSystem BIOS info: 
+$(sudo dmidecode -t 0 | grep -A1 Version:)"
 ! ls $WDIR | grep ".bin$" > /dev/null && echo -e "❌ ERROR: BIN file is not found! \n" && exit 0 || sudo bash ./hp-flash $WDIR/$(ls $WDIR | grep ".bin$")
-# [[ $? == 0 ]] && echo  -e "\n✅ Please reboot the system to start BIOS flash.\n" || echo -e "\n❌ ERROR: Failed to flash BIOS. Please re-run the script.\n"
+
 
 
