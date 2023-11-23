@@ -5,13 +5,13 @@
 
 
 # NOTE: 
-# Internet connection is required in order to install required dependencies
+# Internet connection is required in order to install missing dependencies (*not required for OEM image)
 
 
 # HOW TO USE:
 # Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
 # (1) cd HP-BIOS-Tool-Linux
-# (2) bash Get_BCU_Only.sh
+# (2) bash Get_BCU.sh
 
 
 # SET FILE PATH
