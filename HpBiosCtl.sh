@@ -126,7 +126,7 @@ FLASH_BIOS() {
 $(sudo dmidecode -t 0 | grep -A1 Version:)\n"
 	! ls $WDIR | grep .cab > /dev/null && echo -e "\n❌ ERROR: BIOS capsule is not found! \n" && exit 0
 	[[ -f /etc/fwupd/daemon.conf ]] && sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf
-	sudo fwupdmgr install $WDIR/*.cab --allow-reinstall --allow-older --force 2> /dev/null || sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null
+	sudo fwupdmgr install $WDIR/*.cab --allow-reinstall --allow-older --force || sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null
 }
 
 
