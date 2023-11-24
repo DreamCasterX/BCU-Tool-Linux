@@ -1,17 +1,17 @@
-## A simplified tool works as HP BCU on Linux system
+## A simplified tool to operate BIOS stuffs under Linux OS in a quick way
 
 
 ## NOTE: 
-### Internet connection is required in order to install required dependencies
+### Internet connection may be required in order to install missing dependencies.
+### BIOS source can be obtained from the BIOS package/Capsule/Linux/xxx_xxxxxx.cab
+### To flash BIOS, put the .cab file to 'HP-BIOS-Tool-Linux' root directory.
+
 
 
 ### HOW TO USE:
-#### Copy the whole 'BCU-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run the shell script based on your need::
+#### Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
 ```sh
 cd BCU-Tool-Linux
 
-bash Get_BCU.sh   # To get BCU only
-bash Set_BCU.sh   # To set BCU only
-bash MPM_Lock.sh  # To lock MPM
-
+bash HpBiosCtl.sh  
 ```
