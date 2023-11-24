@@ -6,14 +6,14 @@
 
 # NOTE: 
 # Internet connection may be required in order to install missing dependencies
-# BIOS source can be obtained from the Pulsar BIOS package/GLOBAL/BIOS/xxx_xxxxxx.bin (*non-32MB)
-# To flash BIOS, put the .bin file to 'HP-BIOS-Tool-Linux' root directory 
+# BIOS source can be obtained from the Pulsar BIOS package/Capsule/Linux/xxx_xxxxxx.cab
+# To flash BIOS, put the .cab file to 'HP-BIOS-Tool-Linux' root directory 
 
 
 # HOW TO USE:
 # Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
 # (1) cd HP-BIOS-Tool-Linux
-# (2) bash HpBiosCtl.sh
+# (2) bash HpBiosSetup.sh
 
 
 # SET FILE PATH
@@ -46,6 +46,8 @@ case $PKG in
      	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
      	dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
      	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
+     	dpkg -l | grep fwupd > /dev/null 
+     	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install fwupd -y || : 
    	;;
    "dnf")
    	[[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
@@ -53,6 +55,8 @@ case $PKG in
    	[[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-devel-$(uname -r) -y || :
    	rpm -q kernel-headers-$(uname -r) | grep 'not installed' > /dev/null 
    	[[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
+   	rpm -q fwupd | grep 'not installed' > /dev/null 
+   	[[ $? == 0 ]] && CheckNetwork && sudo dnf install fwupd -y || : 
    	;;
 esac
 
@@ -118,10 +122,11 @@ LOCK_MPM() {
 }
 
 FLASH_BIOS() {
-	cd $APP
-	echo -e "\nSystem BIOS info: 
-$(sudo dmidecode -t 0 | grep -A1 Version:)"
-	! ls $WDIR | grep .bin > /dev/null && echo -e "\n❌ ERROR: BIN file is not found! \n" && exit 0 || sudo bash ./hp-flash $WDIR/*.bin
+	echo -e "\nCurrent system BIOS info: 
+$(sudo dmidecode -t 0 | grep -A1 Version:)\n"
+	! ls $WDIR | grep .cab > /dev/null && echo -e "\n❌ ERROR: BIOS capsule is not found! \n" && exit 0
+	! sudo fwupdmgr install $WDIR/*.cab --force --allow-reinstall --allow-older 2> /dev/null && sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null
+	sudo fwupdmgr install $WDIR/*.cab --force --allow-reinstall --allow-older
 }
 
 
@@ -134,7 +139,6 @@ do
 	read -p "Select an action: " ACTION
 done
 [[ $ACTION == [Gg] ]] && GET_BCU ; [[ $ACTION == [Ss] ]] && SET_BCU ; [[ $ACTION == [Ll] ]] && LOCK_MPM ; [[ $ACTION == [Ff] ]] && FLASH_BIOS
-
 
 
 

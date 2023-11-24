@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # CREATOR: Mike Lu
-# CHANGE DATE: 11/23/2023
+# CHANGE DATE: 11/24/2023
 
 
 # NOTE: 
 # Internet connection may be required in order to install missing dependencies
-# BIOS binary can be obtained from the BIOS package/GLOBAL/BIOS/xxx_xxxxxx.bin (non-32MB) 
-# To flash BIOS, put the .bin file to 'HP-BIOS-Tool-Linux' root directory 
+# BIOS source can be obtained from the Pulsar BIOS package/Capsule/Linux/xxx_xxxxxx.cab
+# To flash BIOS, put the .cab file to 'HP-BIOS-Tool-Linux' root directory 
 
 
 # HOW TO USE:
@@ -78,10 +78,12 @@ fi
 
 
 # FLASH BIOS
-cd $APP
 echo -e "\nSystem BIOS info: 
-$(sudo dmidecode -t 0 | grep -A1 Version:)"
-! ls $WDIR | grep ".bin$" > /dev/null && echo -e "❌ ERROR: BIN file is not found! \n" && exit 0 || sudo bash ./hp-flash $WDIR/$(ls $WDIR | grep ".bin$")
+$(sudo dmidecode -t 0 | grep -A1 Version:)\n"
+! ls $WDIR | grep .cab > /dev/null && echo -e "\n❌ ERROR: BIOS capsule is not found! \n" && exit 0
+sudo fwupdmgr install $WDIR/*.cab --force --allow-reinstall --allow-older 2> /dev/null
+sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null
+sudo fwupdmgr install $WDIR/*.cab --force --allow-reinstall --allow-older
 
 
 
