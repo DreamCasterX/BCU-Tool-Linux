@@ -5,7 +5,7 @@
 
 
 # NOTE: 
-# Internet connection is required in order to install missing dependencies (*not required for OEM image)
+# Internet connection may be required in order to install missing dependencies
 
 
 # HOW TO USE:

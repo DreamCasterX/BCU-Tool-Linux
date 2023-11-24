@@ -5,7 +5,7 @@
 
 
 # NOTE: 
-# Internet connection is required in order to install missing dependencies (*not required for OEM image)
+# Internet connection may be required in order to install missing dependencies
 # BIOS binary can be obtained from the BIOS package/GLOBAL/BIOS/xxx_xxxxxx.bin (non-32MB) 
 # To flash BIOS, put the .bin file to 'HP-BIOS-Tool-Linux' root directory 
 

@@ -4,7 +4,7 @@
 # CHANGE DATE: 11/23/2023
 
 # NOTE: 
-# Internet connection is required in order to install missing dependencies (*not required for OEM image)
+# Internet connection may be required in order to install missing dependencies
 # BIOS source can be obtained from the Pulsar BIOS package/GLOBAL/BIOS/xxx_xxxxxx.bin (*non-32MB)
 # To flash BIOS, put the .bin file to 'HP-BIOS-Tool-Linux' root directory 
 

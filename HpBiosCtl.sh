@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # CREATOR: Mike Lu
-# CHANGE DATE: 11/23/2023
+# CHANGE DATE: 11/24/2023
 
 
 # NOTE: 
-# Internet connection is required in order to install missing dependencies (*not required for OEM image)
+# Internet connection may be required in order to install missing dependencies
 # BIOS source can be obtained from the Pulsar BIOS package/GLOBAL/BIOS/xxx_xxxxxx.bin (*non-32MB)
 # To flash BIOS, put the .bin file to 'HP-BIOS-Tool-Linux' root directory 
 
@@ -13,7 +13,7 @@
 # HOW TO USE:
 # Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
 # (1) cd HP-BIOS-Tool-Linux
-# (2) bash FULL.sh
+# (2) bash HpBiosCtl.sh
 
 
 # SET FILE PATH
@@ -121,7 +121,7 @@ FLASH_BIOS() {
 	cd $APP
 	echo -e "\nSystem BIOS info: 
 $(sudo dmidecode -t 0 | grep -A1 Version:)"
-	! ls $WDIR | grep ".bin$" > /dev/null && echo -e "\n❌ ERROR: BIN file is not found! \n" && exit 0 || sudo bash ./hp-flash $WDIR/$(ls $WDIR | grep ".bin$")
+	! ls $WDIR | grep .bin > /dev/null && echo -e "\n❌ ERROR: BIN file is not found! \n" && exit 0 || sudo bash ./hp-flash $WDIR/*.bin
 }
 
 
