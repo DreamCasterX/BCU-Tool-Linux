@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 11/30/2023
+# CHANGE DATE: 12/05/2023
 
 
 # NOTE: 
@@ -17,23 +17,25 @@
 
 
 # SET FILE PATH
-SPQ=$PWD/sp143035.tgz
-MOD=$PWD/sp143035/hpflash-3.22/non-rpms/hpuefi-mod-3.04
-APP=$PWD/sp143035/hpflash-3.22/non-rpms/hp-flash-3.22_x86_64
+SPQ=$PWD/hpflash-3.23.tgz
+BIN=$PWD/hpflash-3.23/non-rpms
+MOD=$PWD/hpflash-3.23/non-rpms/hpuefi-mod-3.05
+APP=$PWD/hpflash-3.23/non-rpms/hp-flash-3.23_x86_64
+
 
 
 # RESTRICT USER ACCOUNT
-[[ $EUID == 0 ]] && echo -e "⚠️ Please run as non-root user.\n" && exit 0
+[[ $EUID == 0 ]] && echo -e "⚠️ Please run as non-root user.\n" && exit
 
 
 # EXTRACT HP LINUX TOOLS
-[[ ! -f $SPQ ]] && echo -e "❌ ERROR: spxxxxxx.tgz file is not found!\n" && exit 0 || tar xzfm $SPQ
+[[ ! -f $SPQ ]] && echo -e "❌ ERROR: spxxxxxx.tgz file is not found!\n" && exit || tar xzfm $SPQ
 
 
 # CHECK INTERNET CONNETION
 CheckNetwork() {
 	wget -q --spider www.google.com > /dev/null
-	[[ $? != 0 ]] && echo -e "❌ No Internet connection! Check your network and retry.\n" && exit $ERRCODE || :
+	[[ $? != 0 ]] && echo -e "❌ No Internet connection! Check your network and retry.\n" && exit || :
 }
 
 
@@ -63,37 +65,40 @@ esac
 
 
 # CHECK SECURE BOOT STATUS
-! mokutil --sb-state | grep 'disabled' > /dev/null && echo -e "⚠️ Secure boot is not disabled!\n" && exit 0
+! mokutil --sb-state | grep 'disabled' > /dev/null && echo -e "⚠️ Secure boot is not disabled!\n" && exit
 
 
 # INSTALL UEFI MODULE
 if [[ ! -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && ! -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi ]]; then
+	[[ -f $MOD.tgz	]] && cd $BIN && tar xzfm $MOD.tgz && rm -f $MOD.tgz
 	cd $MOD
 	make
 	sudo make install
 else
 	echo "**HP UEFI module is installed**"
 fi
-[[ $? != 0 ]] && exit $ERRORCODE
+[[ $? != 0 ]] && exit $ERRCODE
 
 
 # INSTALL REPLICATED SETUP UTILITY
-lsmod | grep hpuefi
 if [[ ! -d /sys/module/hpuefi && ! -f /opt/hp/hp-flash/bin/hp-repsetup ]]; then
+	[[ -f $APP.tgz	]] && cd $BIN && tar xzfm $APP.tgz && rm -f $APP.tgz 
 	cd $APP
 	sudo bash ./install.sh
+	# lsmod | grep hpuefi   # kernel module is loaded after installation 
 else
 	echo "**HP setup utility is installed**"
 fi
 
 
 # DEFINE FUNCTIONS
-GET_BCU() {
+GET_BCU() {	
 	cd $APP
-	sudo bash ./hp-repsetup -g -a -q
+	sudo bash ./hp-repsetup -g -a -q   
+	# kernel module is loaded to execute the tool, and then removed as soon as the execution is complete
 	sudo chown $USER HPSETUP.TXT 2> /dev/null
 	sudo chmod o+w HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT $PWD/../../../../HPSETUP.TXT 2> /dev/null
-	[[ $? == 0 ]] && echo -e "\n✅ BCU got. To view, run 'cat HPSETUP.TXT'\n            To edit, run 'open HPSETUP.TXT'\n" || echo -e "\n❌ ERROR: Failed to get BCU. Please re-run the script.\n"
+	[[ $? == 0 ]] && echo -e "\n✅ BCU got. To view, run 'cat HPSETUP.TXT'\n            To edit, run 'xdg-open HPSETUP.TXT'\n" || echo -e "\n❌ ERROR: Failed to get BCU. Please re-run the script.\n"
 }
 
 SET_BCU() {
@@ -108,7 +113,7 @@ SET_BCU() {
 		echo -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
 	fi
 	if [[ ! -L $PWD/../../../../HPSETUP.TXT && ! -f $PWD/../../../../HPSETUP.TXT && ! -f $APP/HPSETUP.TXT ]]; then
-		echo -e "❌ ERROR: BCU file is not found!\n" && exit 0
+		echo -e "❌ ERROR: BCU file is not found!\n" && exit
 	else
 		echo -e "\n❌ ERROR: Failed to set BCU. Please re-run the script.\n"
 	fi
@@ -129,7 +134,7 @@ LOCK_MPM() {
 FLASH_BIOS() {
 	echo -e "\nCurrent system BIOS info: 
 $(sudo dmidecode -t 0 | grep -A1 Version:)\n"
-	! ls $PWD | grep .cab > /dev/null && echo -e "\n❌ ERROR: BIOS capsule is not found! \n" && exit 0
+	! ls $PWD | grep .cab > /dev/null && echo -e "\n❌ ERROR: BIOS capsule is not found! \n" && exit
 	[[ -f /etc/fwupd/daemon.conf ]] && sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf
 	sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force || sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null
 }
