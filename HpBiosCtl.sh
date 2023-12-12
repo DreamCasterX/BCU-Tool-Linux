@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 12/05/2023
+# CHANGE DATE: 12/11/2023
 
 
 # NOTE: 
@@ -97,22 +97,22 @@ GET_BCU() {
 	sudo bash ./hp-repsetup -g -a -q   
 	# kernel module is loaded to execute the tool, and then removed as soon as the execution is complete
 	sudo chown $USER HPSETUP.TXT 2> /dev/null
-	sudo chmod o+w HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT $PWD/../../../../HPSETUP.TXT 2> /dev/null
+	sudo chmod o+w HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT $PWD/../../../HPSETUP.TXT 2> /dev/null
 	[[ $? == 0 ]] && echo -e "\n✅ BCU got. To view, run 'cat HPSETUP.TXT'\n            To edit, run 'xdg-open HPSETUP.TXT'\n" || echo -e "\n❌ ERROR: Failed to get BCU. Please re-run the script.\n"
 }
 
 SET_BCU() {
 	cd $APP
-	if [[ -L $PWD/../../../../HPSETUP.TXT ]]; then 
+	if [[ -L $PWD/../../../HPSETUP.TXT ]]; then 
 		sudo bash ./hp-repsetup -s -q 
 		echo -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
 	fi
-	if [[ ! -L $PWD/../../../../HPSETUP.TXT && -f $PWD/../../../../HPSETUP.TXT ]]; then
-		mv $PWD/../../../../HPSETUP.TXT $APP/HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT $PWD/../../../../HPSETUP.TXT 2> /dev/null
+	if [[ ! -L $PWD/../../../HPSETUP.TXT && -f $PWD/../../../HPSETUP.TXT ]]; then
+		mv $PWD/../../../HPSETUP.TXT $APP/HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT $PWD/../../../HPSETUP.TXT 2> /dev/null
 		sudo bash ./hp-repsetup -s -q
 		echo -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
 	fi
-	if [[ ! -L $PWD/../../../../HPSETUP.TXT && ! -f $PWD/../../../../HPSETUP.TXT && ! -f $APP/HPSETUP.TXT ]]; then
+	if [[ ! -L $PWD/../../../HPSETUP.TXT && ! -f $PWD/../../../HPSETUP.TXT && ! -f $APP/HPSETUP.TXT ]]; then
 		echo -e "❌ ERROR: BCU file is not found!\n" && exit
 	else
 		echo -e "\n❌ ERROR: Failed to set BCU. Please re-run the script.\n"
