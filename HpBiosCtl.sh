@@ -132,10 +132,10 @@ LOCK_MPM() {
 }
 
 FLASH_BIOS() {
-	cd $BIN../..
+	cd $BIN/../..
 	echo -e "\nCurrent system BIOS info: 
 $(sudo dmidecode -t 0 | grep -A1 Version:)\n"
-	! ls $PWD | grep .cab > /dev/null && echo -e "\n❌ ERROR: BIOS capsule is not found! \n" && exit
+	! ls | grep .cab > /dev/null && echo -e "\n❌ ERROR: BIOS capsule is not found! \n" && exit
 	[[ -f /etc/fwupd/daemon.conf ]] && sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf
 	sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force || sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null
 }
