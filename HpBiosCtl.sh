@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 12/11/2023
+# CHANGE DATE: 12/25/2023
 
 
 # NOTE: 
@@ -132,6 +132,7 @@ LOCK_MPM() {
 }
 
 FLASH_BIOS() {
+	cd $BIN../..
 	echo -e "\nCurrent system BIOS info: 
 $(sudo dmidecode -t 0 | grep -A1 Version:)\n"
 	! ls $PWD | grep .cab > /dev/null && echo -e "\n❌ ERROR: BIOS capsule is not found! \n" && exit
