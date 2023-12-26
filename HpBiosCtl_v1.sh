@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 12/25/2023
-
+# CHANGE DATE: 12/26/2023
+__version__="v1"
 
 # NOTE: 
 # Internet connection may be required in order to install missing dependencies
@@ -44,6 +44,7 @@ CheckNetwork() {
 case $PKG in
    "apt")
      	[[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo apt update && sudo apt install mokutil -y || : 
+     	[[ ! -f /usr/bin/curl ]] && CheckNetwork && sudo apt update && sudo apt install curl -y || : 
      	dpkg -l | grep build-essential > /dev/null 
      	[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
      	dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
@@ -66,6 +67,31 @@ esac
 
 # CHECK SECURE BOOT STATUS
 ! mokutil --sb-state | grep 'disabled' > /dev/null && echo -e "⚠️ Secure boot is not disabled!\n" && exit
+
+
+# CHECK THE LATEST VERSION
+release_url=https://api.github.com/repos/DreamCasterX/HP-BIOS-Tool-Linux/releases/latest
+new_version=$(curl -s "${release_url}" | grep '"tag_name":' | awk -F\" '{print $4}')
+tarball_url="https://github.com/DreamCasterX/HP-BIOS-Tool-Linux/archive/refs/tags/${new_version}.tar.gz"
+if [[ $new_version != $__version__ ]]; then
+	echo -e "⭐️ New version found!"
+  	sleep 2
+  	echo -e "\nDownloading update..."
+  	pushd "$PWD" > /dev/null 2>&1
+  	curl --silent --insecure --fail --retry-connrefused --retry 3 --retry-delay 2 --location --output ".HpBiosCtl.tar.gz" "${tarball_url}"
+  	if [[ -e ".HpBiosCtl.tar.gz" ]]; then
+		tar -xf .HpBiosCtl.tar.gz -C "$PWD" --strip-components 1 > /dev/null 2>&1
+		rm -f .HpBiosCtl.tar.gz
+		rm -f README.md
+		popd > /dev/null 2>&1
+		sleep 3
+		chmod 777 *.tgz
+		chmod 777 HpBiosCtl_${new_version}.sh
+		echo -e "Successfully updated! Please run the new version: HpBiosCtl_${new_version}.sh\n\n" ; exit 1
+    	else
+		echo -e "\n❌ Error occured while downloading" ; exit 1
+    	fi 
+fi
 
 
 # INSTALL UEFI MODULE
