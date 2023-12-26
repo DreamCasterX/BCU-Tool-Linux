@@ -75,6 +75,8 @@ new_version=$(curl -s "${release_url}" | grep '"tag_name":' | awk -F\" '{print $
 tarball_url="https://github.com/DreamCasterX/HP-BIOS-Tool-Linux/archive/refs/tags/${new_version}.tar.gz"
 if [[ $new_version != $__version__ ]]; then
 	echo -e "⭐️ New version found!"
+	find -type f ! -name '*.sh' ! -name '*.cab' -delete
+	find -type d -exec rm -r {} \; 2> /dev/null
   	sleep 2
   	echo -e "\nDownloading update..."
   	pushd "$PWD" > /dev/null 2>&1
