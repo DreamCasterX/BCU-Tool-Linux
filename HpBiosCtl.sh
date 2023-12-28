@@ -2,7 +2,7 @@
 
 # CREATOR: mike.lu@hp.com
 # CHANGE DATE: 12/28/2023
-__version__="1.1"
+__version__="1.0"
 
 # NOTE: 
 # Internet connection may be required in order to install missing dependencies
