@@ -70,11 +70,11 @@ esac
 
 
 # CHECK THE LATEST VERSION
-CheckNetwork
 release_url=https://api.github.com/repos/DreamCasterX/HP-BIOS-Tool-Linux/releases/latest
 new_version=$(curl -s "${release_url}" | grep '"tag_name":' | awk -F\" '{print $4}')
 release_note=$(curl -s "${release_url}" | grep '"body":' | awk -F\" '{print $4}')
 tarball_url="https://github.com/DreamCasterX/HP-BIOS-Tool-Linux/archive/refs/tags/${new_version}.tar.gz"
+CheckNetwork
 if [[ $new_version != $__version__ ]]; then
 	echo -e "⭐️ New version found!\n\nVersion: $new_version\nRelease note:\n$release_note"
 	find -type f ! -name '*.sh' ! -name '*.cab' -delete
@@ -91,6 +91,10 @@ if [[ $new_version != $__version__ ]]; then
 		sleep 3
 		chmod 777 *.tgz
 		chmod 777 HpBiosCtl.sh
+		# DELETE EXISTING MODULE FILES
+		sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi
+		sudo rm -f /opt/hp/hp-flash/bin/hp-repsetup
+		sudo /sbin/rmmod hpuefi 2> /dev/null
 		echo -e "Successfully updated! Please run HpBiosCtl.sh again.\n\n" ; exit 1
     	else
 		echo -e "\n❌ Error occured while downloading" ; exit 1
