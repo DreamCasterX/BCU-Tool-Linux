@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 12/26/2023
-__version__="v1.0"
+# CHANGE DATE: 12/28/2023
+__version__="1.1"
 
 # NOTE: 
 # Internet connection may be required in order to install missing dependencies
@@ -72,9 +72,10 @@ esac
 # CHECK THE LATEST VERSION
 release_url=https://api.github.com/repos/DreamCasterX/HP-BIOS-Tool-Linux/releases/latest
 new_version=$(curl -s "${release_url}" | grep '"tag_name":' | awk -F\" '{print $4}')
+release_note=$(curl -s "${release_url}" | grep '"body":' | awk -F\" '{print $4}')
 tarball_url="https://github.com/DreamCasterX/HP-BIOS-Tool-Linux/archive/refs/tags/${new_version}.tar.gz"
 if [[ $new_version != $__version__ ]]; then
-	echo -e "⭐️ New version found!"
+	echo -e "⭐️ New version found!\n\nVersion: $new_version\nRelease note:\n$release_note"
 	find -type f ! -name '*.sh' ! -name '*.cab' -delete
 	find -type d -exec rm -r {} \; 2> /dev/null
   	sleep 2
