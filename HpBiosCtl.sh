@@ -23,7 +23,6 @@ MOD=$PWD/hpflash-3.23/non-rpms/hpuefi-mod-3.05
 APP=$PWD/hpflash-3.23/non-rpms/hp-flash-3.23_x86_64
 
 
-
 # RESTRICT USER ACCOUNT
 [[ $EUID == 0 ]] && echo -e "⚠️ Please run as non-root user.\n" && exit
 
@@ -74,6 +73,7 @@ release_url=https://api.github.com/repos/DreamCasterX/HP-BIOS-Tool-Linux/release
 new_version=$(curl -s "${release_url}" | grep '"tag_name":' | awk -F\" '{print $4}')
 release_note=$(curl -s "${release_url}" | grep '"body":' | awk -F\" '{print $4}')
 tarball_url="https://github.com/DreamCasterX/HP-BIOS-Tool-Linux/archive/refs/tags/${new_version}.tar.gz"
+CheckNetwork
 if [[ $new_version != $__version__ ]]; then
 	echo -e "⭐️ New version found!\n\nVersion: $new_version\nRelease note:\n$release_note"
 	find -type f ! -name '*.sh' ! -name '*.cab' -delete
