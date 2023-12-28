@@ -4,6 +4,7 @@
 # CHANGE DATE: 12/28/2023
 __version__="1.0"
 
+
 # NOTE: 
 # Internet connection may be required in order to install missing dependencies
 # BIOS source can be obtained from the Pulsar BIOS package/Capsule/Linux/xxx_xxxxxx.cab
@@ -69,11 +70,11 @@ esac
 
 
 # CHECK THE LATEST VERSION
+CheckNetwork
 release_url=https://api.github.com/repos/DreamCasterX/HP-BIOS-Tool-Linux/releases/latest
 new_version=$(curl -s "${release_url}" | grep '"tag_name":' | awk -F\" '{print $4}')
 release_note=$(curl -s "${release_url}" | grep '"body":' | awk -F\" '{print $4}')
 tarball_url="https://github.com/DreamCasterX/HP-BIOS-Tool-Linux/archive/refs/tags/${new_version}.tar.gz"
-CheckNetwork
 if [[ $new_version != $__version__ ]]; then
 	echo -e "⭐️ New version found!\n\nVersion: $new_version\nRelease note:\n$release_note"
 	find -type f ! -name '*.sh' ! -name '*.cab' -delete
