@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 01/02/2024
+# CHANGE DATE: 01/03/2024
 __version__="1.0"
 
 
@@ -171,7 +171,7 @@ FLASH_BIOS() {
 $(sudo dmidecode -t 0 | grep -A1 Version:)\n"
 	! ls | grep .cab > /dev/null && echo -e "\n❌ ERROR: BIOS capsule is not found! \n" && exit
 	[[ -f /etc/fwupd/daemon.conf ]] && sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf
-	sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force || sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null
+	sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force || (sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null && sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force)
 }
 
 
