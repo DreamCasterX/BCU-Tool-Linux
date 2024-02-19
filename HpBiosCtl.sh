@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 01/03/2024
+# CHANGE DATE: 02/19/2024
 __version__="1.0"
 
 
-# NOTE: 
-# Internet connection may be required in order to install missing dependencies
+# NOTE:
+# Internet connection is required in order to install missing dependencies
 # BIOS source can be obtained from the Pulsar BIOS package/Capsule/Linux/xxx_xxxxxx.cab
 # To flash BIOS, put the .cab file to 'HP-BIOS-Tool-Linux' root directory 
 
@@ -18,10 +18,10 @@ __version__="1.0"
 
 
 # SET FILE PATH
-SPQ=$PWD/hpflash-3.23.tgz
-BIN=$PWD/hpflash-3.23/non-rpms
-MOD=$PWD/hpflash-3.23/non-rpms/hpuefi-mod-3.05
-APP=$PWD/hpflash-3.23/non-rpms/hp-flash-3.23_x86_64
+SPQ=$PWD/hpflash-3.24-20240209.tgz
+BIN=$PWD/hpflash-3.24/non-rpms
+MOD=$PWD/hpflash-3.24/non-rpms/hpuefi-mod-3.05
+APP=$PWD/hpflash-3.24/non-rpms/hp-flash-3.24_x86_64
 
 
 # RESTRICT USER ACCOUNT

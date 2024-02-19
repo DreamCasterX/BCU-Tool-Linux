@@ -2,7 +2,7 @@
 
 
 ##### [NOTE] 
-  + Internet connection may be required in order to install missing dependencies.
+  + Internet connection is required in order to install missing dependencies.
   + BIOS source can be obtained from the BIOS package/Capsule/Linux/xxx_xxxxxx.cab
   + To flash BIOS, put the .cab file to 'HP-BIOS-Tool-Linux' root directory.
 
