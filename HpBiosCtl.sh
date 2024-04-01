@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 02/19/2024
-__version__="1.0"
+# CHANGE DATE: 04/01/2024
+__version__="1.1"
 
 
 # NOTE:
@@ -18,10 +18,10 @@ __version__="1.0"
 
 
 # SET FILE PATH
-SPQ=$PWD/hpflash-3.24-20240209.tgz
-BIN=$PWD/hpflash-3.24/non-rpms
-MOD=$PWD/hpflash-3.24/non-rpms/hpuefi-mod-3.05
-APP=$PWD/hpflash-3.24/non-rpms/hp-flash-3.24_x86_64
+SPQ=$PWD/sp150953.tgz
+BIN=$PWD/sp150953/non-rpms
+MOD=$PWD/sp150953/non-rpms/hpuefi-mod-3.05
+APP=$PWD/sp150953/non-rpms/hp-flash-3.24_x86_64
 
 
 # RESTRICT USER ACCOUNT
