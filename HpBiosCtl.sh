@@ -2,7 +2,7 @@
 
 # CREATOR: mike.lu@hp.com
 # CHANGE DATE: 04/02/2024
-__version__="1.2"
+__version__="1.1"
 
 
 # NOTE:
@@ -19,9 +19,9 @@ __version__="1.2"
 
 # SET FILE PATH
 SPQ=$PWD/sp150953.tgz
-BIN=$PWD/non-rpms
-MOD=$PWD/non-rpms/hpuefi-mod-3.05
-APP=$PWD/non-rpms/hp-flash-3.24_x86_64
+BIN=$PWD/sp150953/non-rpms
+MOD=$PWD/sp150953/non-rpms/hpuefi-mod-3.05
+APP=$PWD/sp150953/non-rpms/hp-flash-3.24_x86_64
 
 
 # RESTRICT USER ACCOUNT
@@ -29,7 +29,7 @@ APP=$PWD/non-rpms/hp-flash-3.24_x86_64
 
 
 # EXTRACT HP LINUX TOOLS
-[[ ! -f $SPQ ]] && echo -e "❌ ERROR: spxxxxxx.tgz file is not found!\n" && exit || tar xzfm $SPQ
+[[ ! -f $SPQ ]] && echo -e "❌ ERROR: spxxxxxx.tgz file is not found!\n" && exit || tar xzfm $SPQ --one-top-level
 
 
 # CHECK INTERNET CONNETION
@@ -42,26 +42,26 @@ CheckNetwork() {
 # INTALL DEPENDENCIES
 [[ -f /usr/bin/apt ]] && PKG=apt || PKG=dnf
 case $PKG in
-	"apt")
-		[[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo apt update && sudo apt install mokutil -y || : 
-		[[ ! -f /usr/bin/curl ]] && CheckNetwork && sudo apt update && sudo apt install curl -y || : 
-		dpkg -l | grep build-essential > /dev/null 
-		[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
-		dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
-		[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
-		dpkg -l | grep fwupd > /dev/null 
-		[[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install fwupd -y || : 
-		;;
-	"dnf")
-		[[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo dnf install mokutil -y || :
-		[[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
-		rpm -q kernel-devel-$(uname -r) | grep 'not installed' > /dev/null 
-		[[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-devel-$(uname -r) -y || :
-		rpm -q kernel-headers-$(uname -r) | grep 'not installed' > /dev/null 
-		[[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
-		rpm -q fwupd | grep 'not installed' > /dev/null 
-		[[ $? == 0 ]] && CheckNetwork && sudo dnf install fwupd -y || : 
-		;;
+    "apt")
+	 [[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo apt update && sudo apt install mokutil -y || : 
+	 [[ ! -f /usr/bin/curl ]] && CheckNetwork && sudo apt update && sudo apt install curl -y || : 
+	 dpkg -l | grep build-essential > /dev/null 
+	 [[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
+	 dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
+	 [[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
+	 dpkg -l | grep fwupd > /dev/null 
+	 [[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install fwupd -y || : 
+    ;;
+    "dnf")
+	 [[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo dnf install mokutil -y || :
+	 [[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
+	 rpm -q kernel-devel-$(uname -r) | grep 'not installed' > /dev/null 
+	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-devel-$(uname -r) -y || :
+	 rpm -q kernel-headers-$(uname -r) | grep 'not installed' > /dev/null 
+	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
+	 rpm -q fwupd | grep 'not installed' > /dev/null 
+	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install fwupd -y || : 
+    ;;
 esac
 
 
