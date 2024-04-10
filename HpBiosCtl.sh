@@ -175,7 +175,7 @@ FLASH_BIOS() {
 	# Extract cab
 	cabextract --filter '*.inf' -q *.cab
 	new_bios_series=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $1}'`
-	new_bios_ver=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $2}' | awk -F '00' '{print $1}' | sed 's/\(..\)\(..\)\(..\)/\1.\2.\3/'`
+	new_bios_ver=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $2}' | sed 's/\(..\)\(..\)/\1.\2./' | awk -F '00.cat' '{print $1}'`
 	new_bios_date=`grep -h 'DriverVer' *.inf | awk '{print $3}' | awk -F ',' '{print $1}'`
 	[[ $(ls *inf) ]] 2> /dev/null && rm -f *.inf
 	echo -e "\nCurrent BIOS info: 
