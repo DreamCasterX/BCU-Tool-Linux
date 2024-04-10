@@ -11,7 +11,7 @@
 #### [HOW TO USE]
 ##### Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
 ```sh
-cd BCU-Tool-Linux
+cd HP-BCU-Tool-Linux
 
 bash HpBiosCtl.sh  
 ```
