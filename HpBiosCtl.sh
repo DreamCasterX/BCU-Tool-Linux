@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 04/02/2024
-__version__="1.1"
+# CHANGE DATE: 04/10/2024
+__version__="1.2"
 
 
 # NOTE:
@@ -51,6 +51,7 @@ case $PKG in
 	 [[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
 	 dpkg -l | grep fwupd > /dev/null 
 	 [[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install fwupd -y || : 
+	 [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo apt update && sudo apt install cabextract -y || : 
     ;;
     "dnf")
 	 [[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo dnf install mokutil -y || :
@@ -61,6 +62,7 @@ case $PKG in
 	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
 	 rpm -q fwupd | grep 'not installed' > /dev/null 
 	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install fwupd -y || : 
+	 [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo dnf install cabextract -y || : 
     ;;
 esac
 
@@ -167,23 +169,44 @@ LOCK_MPM() {
 
 FLASH_BIOS() {
 	cd $BIN/../..
-	echo -e "\nCurrent system BIOS info: 
+	! ls | grep .cab > /dev/null && echo -e "\n❌ ERROR: No BIOS capsule found! \n" && exit
+	[[ $(ls *.cab | wc -l) > 1 ]] && echo -e "\n❌ ERROR: Mutilple BIOS capsules found! \n" && exit
+	[[ $(ls *inf) ]] 2> /dev/null && rm -f *.inf
+	# Extract cab
+	cabextract --filter '*.inf' -q *.cab
+	new_bios_series=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $1}'`
+	new_bios_ver=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $2}' | awk -F '00' '{print $1}' | sed 's/\(..\)\(..\)\(..\)/\1.\2.\3/'`
+	new_bios_date=`grep -h 'DriverVer' *.inf | awk '{print $3}' | awk -F ',' '{print $1}'`
+	[[ $(ls *inf) ]] 2> /dev/null && rm -f *.inf
+	echo -e "\nCurrent BIOS info: 
 $(sudo dmidecode -t 0 | grep -A1 Version:)\n"
-	! ls | grep .cab > /dev/null && echo -e "\n❌ ERROR: BIOS capsule is not found! \n" && exit
+	echo -e "New BIOS info: 
+	Version: $new_bios_series Ver. $new_bios_ver
+	Release Date: $new_bios_date"
 	[[ -f /etc/fwupd/daemon.conf ]] && sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf
 	sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force || (sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null && sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force)
 }
 
+FLASH_BIOS_LVFS() {
+	CheckNetwork
+	fwupdmgr refresh --force
+	deviceID=`fwupdmgr get-devices 2> /dev/null | grep -EA1 'System Firmware:' | grep -w 'Device ID:' | awk '{print $NF}'`
+	check_LVFS=`fwupdmgr get-updates $deviceID 2> /dev/null` # Check if any BIOS updates on LVFS
+	[[ $? == 2 ]] && echo -e "\nNo BIOS updates available on the LVFS\n" && exit
+	fwupdmgr update $deviceID
+	# fwupdmgr get-releases $deviceID  # Display all BIOS releases on LVFS
+}
+
 
 # USER INTERACTION
-echo -e "  \nGet BCU [G]   Set BCU [S]   Lock MPM [L]   Flash BIOS [F]\n"
+echo -e "  \nGet BCU [G]   Set BCU [S]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]\n"
 read -p "Select an action: " ACTION
 while [[ $ACTION != [GgSsLlFf] ]]
 do
 	echo -e "Invalid input!"
 	read -p "Select an action: " ACTION
 done
-[[ $ACTION == [Gg] ]] && GET_BCU ; [[ $ACTION == [Ss] ]] && SET_BCU ; [[ $ACTION == [Ll] ]] && LOCK_MPM ; [[ $ACTION == [Ff] ]] && FLASH_BIOS
+[[ $ACTION == [Gg] ]] && GET_BCU ; [[ $ACTION == [Ss] ]] && SET_BCU ; [[ $ACTION == [Mm] ]] && LOCK_MPM ; [[ $ACTION == [Ff] ]] && FLASH_BIOS ; [[ $ACTION == [Ll] ]] && FLASH_BIOS_LVFS
 
 
 
