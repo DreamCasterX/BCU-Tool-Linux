@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 04/10/2024
-__version__="1.2"
+# CHANGE DATE: 04/30/2024
+__version__="1.3"
 
 
 # NOTE:
@@ -52,6 +52,7 @@ case $PKG in
 	 dpkg -l | grep fwupd > /dev/null 
 	 [[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install fwupd -y || : 
 	 [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo apt update && sudo apt install cabextract -y || : 
+	 [[ ! -f /usr/bin/gcc-12 ]] && CheckNetwork && sudo apt update && sudo apt install gcc-12 -y || :  # for 22.04.4 LTS generic (6.5.0-28-generic)
     ;;
     "dnf")
 	 [[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo dnf install mokutil -y || :
