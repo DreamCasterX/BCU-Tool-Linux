@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 04/30/2024
-__version__="1.3"
+# CHANGE DATE: 05/10/2024
+__version__="1.4"
 
 
 # NOTE:
@@ -94,7 +94,7 @@ if [[ $new_version != $__version__ ]]; then
 		sleep 3
 		chmod 777 *.tgz
 		chmod 777 HpBiosCtl.sh
-		# DELETE EXISTING MODULE FILES
+		# Delete esisting module files
 		sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi
 		sudo rm -f /opt/hp/hp-flash/bin/hp-repsetup
 		sudo /sbin/rmmod hpuefi 2> /dev/null
@@ -132,7 +132,7 @@ fi
 GET_BCU() {	
 	cd $APP
 	sudo bash ./hp-repsetup -g -a -q   
-	# kernel module is loaded to execute the tool, and then removed as soon as the execution is complete
+	# Kernel module is loaded to execute the tool, and then removed as soon as the execution is complete
 	sudo chown $USER HPSETUP.TXT 2> /dev/null
 	sudo chmod o+w HPSETUP.TXT 2> /dev/null && ln -sf $APP/HPSETUP.TXT $PWD/../../../HPSETUP.TXT 2> /dev/null
 	[[ $? == 0 ]] && echo -e "\n✅ BCU got. To view, run 'cat HPSETUP.TXT'\n            To edit, run 'xdg-open HPSETUP.TXT'\n" || echo -e "\n❌ ERROR: Failed to get BCU. Please re-run the script.\n"
@@ -198,16 +198,72 @@ FLASH_BIOS_LVFS() {
 	# fwupdmgr get-releases $deviceID  # Display all BIOS releases on LVFS
 }
 
+CHECK_FB() {
+    cd $APP
+	sudo bash ./hp-repsetup -g -a -q
+	sudo chown $USER HPSETUP.TXT 2> /dev/null
+	sudo chmod o+w HPSETUP.TXT 2> /dev/null
+	# Feature byte list
+	FB_NB='aw'        # Chassis type is Notebook
+	FB_AIO='7S'       # Chassis type is AIO
+	FB_INTC='nV'      # Architecture is Intel
+	FB_AMD='nW'       # Architecture is AMD
+	FB_W11='pn'       # Windows 11 
+	FB_UBU='n6'      # Ubuntu Linux
+	FB_Free='7d'      # FreeDOS 
+	FB_U2004='rE'     # Ubuntu: version 20.04
+	FB_U2204='rF'     # Ubuntu: version 22.04
+	FB_U2404='rG'     # Ubuntu: version 24.04
+	FB_Cam='7s'       # Webcam is supported
+	FB_AED='hW'       # Enable recovery in hidden dive, such as eMMC 
+	FB_TS='7R'        # Touch platform
+	FB_noTS='7Q'      # Non-Touch platform
+	FB_noMIC='8y'     # Disable internal MIC
+	FB_SPK='7Y'       # Internal speaker
+	FB_noSPK='aM'     # No internal speaker
+	FB_CRD='hk'       # Card reader is supported
+	FB_OLED='fD'      # OLED panel is supported
+	FB_WWAN='fX'      # WWAN is supported
+	FB_WWAN_USB='pj'  # WWAN/LTE M.2 slot USB instead of PCIe
+	FB_noWWAN='qd'    # No WWAN
+	FB_HPSR='jh'      # HP Sure Recover
+	FB_noHPSR='sy'    # Disable HP Sure Recover by default
+	FB_string=`cat HPSETUP.TXT | awk '/Feature Byte/{getline; print $1}'`
+	echo -e "\nThe following features are supported or enabled in FB:\n" 
+	[[ $FB_string == *$FB_NB* ]] && echo -e "    ✅ Chassis: Notebook\n"
+	[[ $FB_string == *$FB_AIO* ]] && echo -e "    ✅ Chassis: AIO\n"
+	[[ $FB_string == *$FB_INTC* ]] && echo -e "    ✅ Arch: Intel\n"
+	[[ $FB_string == *$FB_AMD* ]] && echo -e "    ✅ Arch: AMD\n"
+	[[ $FB_string == *$FB_W11* ]] && echo -e "    ✅ OS: Windows 11\n"
+	[[ $FB_string == *$FB_UBU* ]] && echo -e "    ✅ OS: Ubuntu\n"
+	[[ $FB_string == *$FB_U2004* ]] && echo -e "    ✅ OS: Ubuntu 20.04\n"
+	[[ $FB_string == *$FB_U2204* ]] && echo -e "    ✅ OS: Ubuntu 22.04\n"
+	[[ $FB_string == *$FB_U2404* ]] && echo -e "    ✅ OS: Ubuntu 24.04\n"
+	[[ $FB_string == *$FB_Free* ]] && echo -e "    ✅ OS: FreeDOS\n"
+	[[ $FB_string == *$FB_TS* ]] && echo -e "    ✅ Touch screen: YES\n"
+	[[ $FB_string == *$FB_noTS* ]] && echo -e "    ❌ Touch screen: NO\n"
+	[[ $FB_string == *$FB_OLED* ]] && echo -e "    ✅ OLED panel\n"
+	[[ $FB_string == *$FB_Camera* ]] && echo -e "    ✅ Camera\n"
+	[[ $FB_string == *$FB_CRD* ]] && echo -e "    ✅ Card Reader\n"
+	[[ $FB_string == *$FB_SPK* ]] && echo -e "    ✅ Internal speaker: YES\n"
+	[[ $FB_string == *$FB_noSPK* ]] && echo -e "    ❌ Internal speaker: NO\n"
+	[[ $FB_string == *$FB_noMIC* ]] && echo -e "    ❌ Internal MIC: NO\n"
+	[[ $FB_string == *$FB_AED* ]] && echo -e "    ⚠️ Show recovery disk (eMMC)\n"
+	[[ $FB_string == *$FB_WWAN* ]] && echo -e "    ✅ WWAN: YES\n"
+	[[ $FB_string == *$FB_WWAN_USB* ]] && echo -e "    ✅ WWAN(USB): YES\n"
+	[[ $FB_string == *$FB_noWWAN* ]] && echo -e "    ❌ WWAN: NO\n"
+	[[ $FB_string == *$FB_noHPSR* ]] && echo -e "    ✅ HP Sure Recover: YES\n"
+	[[ $FB_string == *$FB_noHPSR* ]] && echo -e "    ❌️ HP Sure Recover: NO\n"
+}
 
 # USER INTERACTION
-echo -e "  \nGet BCU [G]   Set BCU [S]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]\n"
+echo -e "  \nGet BCU [G]   Set BCU [S]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]   Decode Feature Byte [D]\n"
 read -p "Select an action: " ACTION
-while [[ $ACTION != [GgSsLlFf] ]]
+while [[ $ACTION != [GgSsMmFfFlDdQq] ]]
 do
 	echo -e "Invalid input!"
 	read -p "Select an action: " ACTION
 done
-[[ $ACTION == [Gg] ]] && GET_BCU ; [[ $ACTION == [Ss] ]] && SET_BCU ; [[ $ACTION == [Mm] ]] && LOCK_MPM ; [[ $ACTION == [Ff] ]] && FLASH_BIOS ; [[ $ACTION == [Ll] ]] && FLASH_BIOS_LVFS
-
-
+[[ $ACTION == [Gg] ]] && GET_BCU ; [[ $ACTION == [Ss] ]] && SET_BCU ; [[ $ACTION == [Mm] ]] && LOCK_MPM ; [[ $ACTION == [Ff] ]] && FLASH_BIOS ; 
+[[ $ACTION == [Ll] ]] && FLASH_BIOS_LVFS ; [[ $ACTION == [Dd] ]] && CHECK_FB ; [[ $ACTION == [Qq] ]] && exit
 
