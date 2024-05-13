@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 05/10/2024
+# CHANGE DATE: 05/13/2024
 __version__="1.4"
 
 
@@ -240,24 +240,24 @@ CHECK_FB() {
 	[[ $FB_string == *$FB_U2204* ]] && echo -e "    ✅ OS: Ubuntu 22.04\n"
 	[[ $FB_string == *$FB_U2404* ]] && echo -e "    ✅ OS: Ubuntu 24.04\n"
 	[[ $FB_string == *$FB_Free* ]] && echo -e "    ✅ OS: FreeDOS\n"
-	[[ $FB_string == *$FB_TS* ]] && echo -e "    ✅ Touch screen: YES\n"
-	[[ $FB_string == *$FB_noTS* ]] && echo -e "    ❌ Touch screen: NO\n"
+	[[ $FB_string == *$FB_TS* ]] && echo -e "    ✅ Touch screen\n"
+	[[ $FB_string == *$FB_noTS* ]] && echo -e "    ❌ Non-Touch screen\n"
 	[[ $FB_string == *$FB_OLED* ]] && echo -e "    ✅ OLED panel\n"
 	[[ $FB_string == *$FB_Camera* ]] && echo -e "    ✅ Camera\n"
 	[[ $FB_string == *$FB_CRD* ]] && echo -e "    ✅ Card Reader\n"
 	[[ $FB_string == *$FB_SPK* ]] && echo -e "    ✅ Internal speaker: YES\n"
-	[[ $FB_string == *$FB_noSPK* ]] && echo -e "    ❌ Internal speaker: NO\n"
-	[[ $FB_string == *$FB_noMIC* ]] && echo -e "    ❌ Internal MIC: NO\n"
+	[[ $FB_string == *$FB_noSPK* ]] && echo -e "    ❌ No internal speaker\n"
+	[[ $FB_string == *$FB_noMIC* ]] && echo -e "    ❌ No internal MIC\n"
 	[[ $FB_string == *$FB_AED* ]] && echo -e "    ⚠️ Show recovery disk (eMMC)\n"
-	[[ $FB_string == *$FB_WWAN* ]] && echo -e "    ✅ WWAN: YES\n"
-	[[ $FB_string == *$FB_WWAN_USB* ]] && echo -e "    ✅ WWAN(USB): YES\n"
-	[[ $FB_string == *$FB_noWWAN* ]] && echo -e "    ❌ WWAN: NO\n"
-	[[ $FB_string == *$FB_noHPSR* ]] && echo -e "    ✅ HP Sure Recover: YES\n"
-	[[ $FB_string == *$FB_noHPSR* ]] && echo -e "    ❌️ HP Sure Recover: NO\n"
+	[[ $FB_string == *$FB_WWAN* ]] && echo -e "    ✅ WWAN\n"
+	[[ $FB_string == *$FB_WWAN_USB* ]] && echo -e "    ✅ WWAN(USB)\n"
+	[[ $FB_string == *$FB_noWWAN* ]] && echo -e "    ❌ No WWAN\n"
+	[[ $FB_string == *$FB_HPSR* ]] && echo -e "    ✅ HP Sure Recover\n"
+	[[ $FB_string == *$FB_noHPSR* ]] && echo -e "    ❌️ No HP Sure Recover\n"
 }
 
 # USER INTERACTION
-echo -e "  \nGet BCU [G]   Set BCU [S]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]   Decode Feature Byte [D]\n"
+echo -e "  \nGet BCU [G]   Set BCU [S]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]   Decode FeatureByte [D]\n"
 read -p "Select an action: " ACTION
 while [[ $ACTION != [GgSsMmFfFlDdQq] ]]
 do
