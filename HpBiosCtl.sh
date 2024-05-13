@@ -128,7 +128,12 @@ else
 fi
 
 
-# DEFINE FUNCTIONS
+# DELETE UEFI MODULE AND UTILITY (For debug use) 
+# sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi
+# sudo rm -f /opt/hp/hp-flash/bin/hp-repsetup
+# sudo /sbin/rmmod hpuefi
+
+
 GET_BCU() {	
 	cd $APP
 	sudo bash ./hp-repsetup -g -a -q   
