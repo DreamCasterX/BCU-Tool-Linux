@@ -63,7 +63,7 @@ case $PKG in
 	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
 	 rpm -q fwupd | grep 'not installed' > /dev/null 
 	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install fwupd -y || : 
-	 [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo dnf install cabextract -y || : 
+	 # [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo dnf install cabextract -y || : 
     ;;
 esac
 
@@ -179,11 +179,13 @@ FLASH_BIOS() {
 	[[ $(ls *.cab | wc -l) > 1 ]] && echo -e "\n❌ ERROR: Mutilple BIOS capsules found! \n" && exit
 	[[ $(ls *inf) ]] 2> /dev/null && rm -f *.inf
 	# Extract cab
-	cabextract --filter '*.inf' -q *.cab
-	new_bios_series=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $1}'`
-	new_bios_ver=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $2}' | sed 's/\(..\)\(..\)/\1.\2./' | awk -F '00.cat' '{print $1}'`
-	new_bios_date=`grep -h 'DriverVer' *.inf | awk '{print $3}' | awk -F ',' '{print $1}'`
-	[[ $(ls *inf) ]] 2> /dev/null && rm -f *.inf
+	if [[ -f /usr/bin/apt ]]; then 
+		cabextract --filter '*.inf' -q *.cab
+		new_bios_series=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $1}'`
+		new_bios_ver=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $2}' | sed 's/\(..\)\(..\)/\1.\2./' | awk -F '00.cat' '{print $1}'`
+		new_bios_date=`grep -h 'DriverVer' *.inf | awk '{print $3}' | awk -F ',' '{print $1}'`
+		[[ $(ls *inf) ]] 2> /dev/null && rm -f *.inf
+	fi
 	echo -e "\nCurrent BIOS info: 
 $(sudo dmidecode -t 0 | grep -A1 Version:)\n"
 	echo -e "New BIOS info: 
