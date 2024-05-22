@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 05/13/2024
+# CHANGE DATE: 05/20/2024
 __version__="1.4"
 
 
@@ -92,8 +92,8 @@ if [[ $new_version != $__version__ ]]; then
 		rm -f README.md
 		popd > /dev/null 2>&1
 		sleep 3
-		chmod 777 *.tgz
-		chmod 777 HpBiosCtl.sh
+		sudo chmod 755 *.tgz
+		sudo chmod 755 HpBiosCtl.sh
 		# Delete esisting module files
 		sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi
 		sudo rm -f /opt/hp/hp-flash/bin/hp-repsetup
