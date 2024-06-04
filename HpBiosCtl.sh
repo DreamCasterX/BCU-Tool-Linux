@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 05/20/2024
-__version__="1.4"
+# CHANGE DATE: 06/04/2024
+__version__="1.5"
 
 
 # NOTE:
@@ -63,7 +63,7 @@ case $PKG in
 	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
 	 rpm -q fwupd | grep 'not installed' > /dev/null 
 	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install fwupd -y || : 
-	 # [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo dnf install cabextract -y || : 
+	 # [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo dnf install cabextract -y || :
     ;;
 esac
 
@@ -191,8 +191,13 @@ $(sudo dmidecode -t 0 | grep -A1 Version:)\n"
 	echo -e "New BIOS info: 
 	Version: $new_bios_series Ver. $new_bios_ver
 	Release Date: $new_bios_date"
-	[[ -f /etc/fwupd/daemon.conf ]] && sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf
-	sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force || (sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null && sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force)
+	if [[ -f /etc/fwupd/daemon.conf ]]; then
+		sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf
+		sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force || (sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null && sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force)
+	elif [[ -f /etc/fwupd/fwupd.conf ]]; then 
+		echo -e '[fwupd]\n# use `man 5 fwupd.conf` for documentation\nOnlyTrusted=false' | sudo tee /etc/fwupd/fwupd.conf > /dev/null
+		sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force || (echo -e '[fwupd]\n# use `man 5 fwupd.conf` for documentation\nOnlyTrusted=false' | sudo tee /etc/fwupd/fwupd.conf > /dev/null && sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force)
+	fi
 }
 
 FLASH_BIOS_LVFS() {
@@ -205,18 +210,14 @@ FLASH_BIOS_LVFS() {
 	# fwupdmgr get-releases $deviceID  # Display all BIOS releases on LVFS
 }
 
-CHECK_FB() {
-    cd $APP
-	sudo bash ./hp-repsetup -g -a -q
-	sudo chown $USER HPSETUP.TXT 2> /dev/null
-	sudo chmod o+w HPSETUP.TXT 2> /dev/null
+CHECK_FBYTE() {
 	# Feature byte list
 	FB_NB='aw'        # Chassis type is Notebook
 	FB_AIO='7S'       # Chassis type is AIO
 	FB_INTC='nV'      # Architecture is Intel
 	FB_AMD='nW'       # Architecture is AMD
 	FB_W11='pn'       # Windows 11 
-	FB_UBU='n6'      # Ubuntu Linux
+	FB_UBU='n6'       # Ubuntu Linux
 	FB_Free='7d'      # FreeDOS 
 	FB_U2004='rE'     # Ubuntu: version 20.04
 	FB_U2204='rF'     # Ubuntu: version 22.04
@@ -235,8 +236,8 @@ CHECK_FB() {
 	FB_noWWAN='qd'    # No WWAN
 	FB_HPSR='jh'      # HP Sure Recover
 	FB_noHPSR='sy'    # Disable HP Sure Recover by default
-	FB_string=`cat HPSETUP.TXT | awk '/Feature Byte/{getline; print $1}'`
-	echo -e "\nThe following features are supported or enabled in FB:\n" 
+	FB_string=`sudo dmidecode -t 11 | grep FBYTE | awk -F '#' '{print $2}'`
+	echo -e "\nThe following features are supported or enabled in FBYTE:\n" 
 	[[ $FB_string == *$FB_NB* ]] && echo -e "    ✅ Chassis: Notebook\n"
 	[[ $FB_string == *$FB_AIO* ]] && echo -e "    ✅ Chassis: AIO\n"
 	[[ $FB_string == *$FB_INTC* ]] && echo -e "    ✅ Arch: Intel\n"
@@ -272,5 +273,5 @@ do
 	read -p "Select an action: " ACTION
 done
 [[ $ACTION == [Gg] ]] && GET_BCU ; [[ $ACTION == [Ss] ]] && SET_BCU ; [[ $ACTION == [Mm] ]] && LOCK_MPM ; [[ $ACTION == [Ff] ]] && FLASH_BIOS ; 
-[[ $ACTION == [Ll] ]] && FLASH_BIOS_LVFS ; [[ $ACTION == [Dd] ]] && CHECK_FB ; [[ $ACTION == [Qq] ]] && exit
+[[ $ACTION == [Ll] ]] && FLASH_BIOS_LVFS ; [[ $ACTION == [Dd] ]] && CHECK_FBYTE ; [[ $ACTION == [Qq] ]] && exit
 
