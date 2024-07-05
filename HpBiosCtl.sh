@@ -1,23 +1,22 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 06/04/2024
-__version__="1.5"
+# CHANGE DATE: 07/05/2024
+__version__="1.6"
 
 
 # NOTE:
 # Internet connection is required in order to install missing dependencies
 # BIOS source can be obtained from the Pulsar BIOS package/Capsule/Linux/xxx_xxxxxx.cab
-# To flash BIOS, put the .cab file to 'HP-BIOS-Tool-Linux' root directory 
+# To flash BIOS, put the .cab file to the same directory as this script
 
 
 # HOW TO USE:
-# Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
-# (1) cd HP-BIOS-Tool-Linux
-# (2) bash HpBiosSetup.sh
+# Run `bash HpBiosSetup.sh`
 
 
 # SET FILE PATH
+FTP=https://ftp.hp.com/pub/softpaq/sp150501-151000/sp150953.tgz
 SPQ=$PWD/sp150953.tgz
 BIN=$PWD/sp150953/non-rpms
 MOD=$PWD/sp150953/non-rpms/hpuefi-mod-3.05
@@ -28,8 +27,9 @@ APP=$PWD/sp150953/non-rpms/hp-flash-3.24_x86_64
 [[ $EUID == 0 ]] && echo -e "⚠️ Please run as non-root user.\n" && exit
 
 
-# EXTRACT HP LINUX TOOLS
-[[ ! -f $SPQ ]] && echo -e "❌ ERROR: spxxxxxx.tgz file is not found!\n" && exit || tar xzfm $SPQ --one-top-level
+# DOWNLOAD & EXTRACT HP LINUX TOOLS
+[[ ! -f $SPQ ]] && wget $FTP -q 
+tar xzfm $SPQ --one-top-level
 
 
 # CHECK INTERNET CONNETION
@@ -112,6 +112,7 @@ if [[ ! -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && ! -f /lib
 	make
 	sudo make install
 else
+	[[ -f $MOD.tgz	]] && cd $BIN && tar xzfm $MOD.tgz && rm -f $MOD.tgz
 	echo "**HP UEFI module is installed**"
 fi
 [[ $? != 0 ]] && exit $ERRCODE
@@ -124,14 +125,9 @@ if [[ ! -d /sys/module/hpuefi && ! -f /opt/hp/hp-flash/bin/hp-repsetup ]]; then
 	sudo bash ./install.sh
 	# lsmod | grep hpuefi   # kernel module is loaded after installation 
 else
+	[[ -f $APP.tgz	]] && cd $BIN && tar xzfm $APP.tgz && rm -f $APP.tgz 
 	echo "**HP setup utility is installed**"
 fi
-
-
-# DELETE UEFI MODULE AND UTILITY (For debug use) 
-# sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi
-# sudo rm -f /opt/hp/hp-flash/bin/hp-repsetup
-# sudo /sbin/rmmod hpuefi
 
 
 GET_BCU() {	
@@ -264,14 +260,24 @@ CHECK_FBYTE() {
 	[[ $FB_string == *$FB_noHPSR* ]] && echo -e "    ❌️ No HP Sure Recover\n"
 }
 
+# DELETE UEFI MODULE AND UTILITY (For debug use) 
+CLEAN() {
+	sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi
+	sudo rm -f /opt/hp/hp-flash/bin/hp-repsetup
+	sudo /sbin/rmmod hpuefi 2> /dev/null
+	echo -e "\n✅ Removed HP UEFI module and HP setup utility. System restored to the default\n" 
+}
+
+
 # USER INTERACTION
 echo -e "  \nGet BCU [G]   Set BCU [S]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]   Decode FeatureByte [D]\n"
 read -p "Select an action: " ACTION
-while [[ $ACTION != [GgSsMmFfFlDdQq] ]]
+while [[ $ACTION != [GgSsMmFfFlDdCcQq] ]]
 do
 	echo -e "Invalid input!"
 	read -p "Select an action: " ACTION
 done
 [[ $ACTION == [Gg] ]] && GET_BCU ; [[ $ACTION == [Ss] ]] && SET_BCU ; [[ $ACTION == [Mm] ]] && LOCK_MPM ; [[ $ACTION == [Ff] ]] && FLASH_BIOS ; 
-[[ $ACTION == [Ll] ]] && FLASH_BIOS_LVFS ; [[ $ACTION == [Dd] ]] && CHECK_FBYTE ; [[ $ACTION == [Qq] ]] && exit
+[[ $ACTION == [Ll] ]] && FLASH_BIOS_LVFS ; [[ $ACTION == [Dd] ]] && CHECK_FBYTE ; [[ $ACTION == [Cc] ]] && CLEAN ; [[ $ACTION == [Qq] ]] && exit
+
 
