@@ -2,16 +2,13 @@
 
 
 ##### [NOTE] 
-  + Internet connection is required in order to install missing dependencies.
+  + Internet connection is required in order to install missing dependencies
   + BIOS source can be obtained from the BIOS package/Capsule/Linux/xxx_xxxxxx.cab
-  + To flash BIOS, put the .cab file to 'HP-BIOS-Tool-Linux' root directory.
+  + To flash BIOS, put the .cab file to the same directory as this script
 
 
 ### ------------------------------------------------------------------------------
 #### [HOW TO USE]
-##### Copy the whole 'HP-BIOS-Tool-Linux' folder (containing .sh and .tgz files) to HOME directory and run below command on Terminal:
 ```sh
-cd HP-BCU-Tool-Linux
-
 bash HpBiosCtl.sh  
 ```
