@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 07/05/2024
+# CHANGE DATE: 07/08/2024
 __version__="1.6"
 
 
@@ -29,7 +29,7 @@ APP=$PWD/sp150953/non-rpms/hp-flash-3.24_x86_64
 
 # DOWNLOAD & EXTRACT HP LINUX TOOLS
 [[ ! -f $SPQ ]] && wget $FTP -q 
-tar xzfm $SPQ --one-top-level
+tar xzfm $SPQ --one-top-level 2> /dev/null
 
 
 # CHECK INTERNET CONNETION
@@ -92,8 +92,9 @@ if [[ $new_version != $__version__ ]]; then
 		rm -f README.md
 		popd > /dev/null 2>&1
 		sleep 3
+		sudo chmod 755 *.tgz
 		sudo chmod 755 HpBiosCtl.sh
-		# Delete existing module files
+		# Delete esisting module files
 		sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi
 		sudo rm -f /opt/hp/hp-flash/bin/hp-repsetup
 		sudo /sbin/rmmod hpuefi 2> /dev/null
