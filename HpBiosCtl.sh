@@ -251,7 +251,7 @@ CHECK_FBYTE() {
 	[[ $FB_string == *$FB_SPK* ]] && echo -e "    ✅ Internal speaker: YES\n"
 	[[ $FB_string == *$FB_noSPK* ]] && echo -e "    ❌ No internal speaker\n"
 	[[ $FB_string == *$FB_noMIC* ]] && echo -e "    ❌ No internal MIC\n"
-	[[ $FB_string == *$FB_AED* ]] && echo -e "    ⚠️ Show recovery disk (eMMC)\n"
+	[[ $FB_string == *$FB_AED* ]] && echo -e "    ⚠️ Show recovery disk (eM🗑MC)\n"
 	[[ $FB_string == *$FB_WWAN* ]] && echo -e "    ✅ WWAN\n"
 	[[ $FB_string == *$FB_WWAN_USB* ]] && echo -e "    ✅ WWAN(USB)\n"
 	[[ $FB_string == *$FB_noWWAN* ]] && echo -e "    ❌ No WWAN\n"
@@ -264,7 +264,7 @@ CLEAN() {
 	sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi
 	sudo rm -f /opt/hp/hp-flash/bin/hp-repsetup
 	sudo /sbin/rmmod hpuefi 2> /dev/null
-	echo -e "\n✅ Removed HP UEFI module and HP setup utility. System restored to the default\n" 
+	echo -e "\n🗑  Removed HP UEFI module and HP setup utility. System restored to the default\n" 
 }
 
 
