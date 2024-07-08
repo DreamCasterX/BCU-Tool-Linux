@@ -80,8 +80,8 @@ tarball_url="https://github.com/DreamCasterX/HP-BIOS-Tool-Linux/archive/refs/tag
 CheckNetwork
 if [[ $new_version != $__version__ ]]; then
 	echo -e "⭐️ New version found!\n\nVersion: $new_version\nRelease note:\n$release_note"
-	find -type f ! -name '*.sh' ! -name '*.cab' ! -name '*.TXT' -delete
-	find -type d -exec rm -r {} \; 2> /dev/null
+	# find -type f ! -name '*.sh' ! -name '*.cab' ! -name '*.TXT' -delete
+	# find -type d -exec rm -r {} \; 2> /dev/null
   	sleep 2
   	echo -e "\nDownloading update..."
   	pushd "$PWD" > /dev/null 2>&1
