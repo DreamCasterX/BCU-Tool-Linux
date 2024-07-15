@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 07/08/2024
+# CHANGE DATE: 07/15/2024
 __version__="1.6"
 
 
@@ -150,10 +150,25 @@ SET_BCU() {
 		echo -e "\n✅ BCU is set. Please reboot the system to take effect.\n" && exit 0
 	fi
 	if [[ ! -L $PWD/../../../HPSETUP.TXT && ! -f $PWD/../../../HPSETUP.TXT && ! -f $APP/HPSETUP.TXT ]]; then
-		echo -e "❌ ERROR: BCU file is not found!\n" && exit
+		echo -e "\n❌ ERROR: BCU file is not found!\n" && exit
 	else
 		echo -e "\n❌ ERROR: Failed to set BCU. Please re-run the script.\n"
 	fi
+}
+
+BACKUP_BCU() {
+	cd $APP
+	[[ ! -f $PWD/HPSETUP.TXT ]] && echo -e "\n❌ ERROR: BCU file is not found!\n" && exit
+	case $PKG in
+    	"apt")
+	[[ `ls /media/$USERNAME/ | wc -l` == 0 ]] && echo -e "\n❌ ERROR: USB drive is not detected!\n" && exit
+	[[ `ls /media/$USERNAME/ | wc -l` == 1 ]] && sudo cp $PWD/HPSETUP.TXT /media/$USERNAME/$(ls /media/$USERNAME) 2> /dev/null && echo -e "\n💾 BCU file has been saved to your USB drive - `echo /media/$USERNAME/$(ls /media/$USERNAME) | cut -d '/' -f4`\n"
+    	;;
+    	"dnf")	
+	[[ `ls /run/media/$USERNAME/ | wc -l` == 0 ]] && echo -e "\n❌ ERROR: USB drive is not detected!\n" && exit
+	[[ `ls /run/media/$USERNAME/ | wc -l` == 1 ]] && sudo cp $PWD/HPSETUP.TXT /run/media/$USERNAME/$(ls /run/media/$USERNAME) 2> /dev/null && echo -e "\n💾 BCU file has been saved to your USB drive - `echo /run/media/$USERNAME/$(ls /run/media/$USERNAME) | cut -d '/' -f5`\n"
+    	;;
+	esac
 }
 
 LOCK_MPM() {
@@ -260,23 +275,23 @@ CHECK_FBYTE() {
 }
 
 # DELETE UEFI MODULE AND UTILITY (For debug use) 
-CLEAN() {
+RESTORE() {
 	sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/hpuefi.ko && sudo rm -f /lib/modules/$(uname -r)/kernel/drivers/hpuefi/mkdevhpuefi
 	sudo rm -f /opt/hp/hp-flash/bin/hp-repsetup
 	sudo /sbin/rmmod hpuefi 2> /dev/null
-	echo -e "\n🗑  Removed HP UEFI module and HP setup utility. System restored to the default\n" 
+	echo -e "\n🗑  Removed HP UEFI module and HP setup utility. System restored to the default.\n" 
 }
 
 
 # USER INTERACTION
-echo -e "  \nGet BCU [G]   Set BCU [S]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]   Decode FeatureByte [D]\n"
+echo -e "  \nGet BCU [G]   Set BCU [S]   Backup BCU [B]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]   Decode FeatureByte [D]\n"
 read -p "Select an action: " ACTION
-while [[ $ACTION != [GgSsMmFfFlDdCcQq] ]]
+while [[ $ACTION != [GgSsBbMmFfFlDdRrQq] ]]
 do
 	echo -e "Invalid input!"
 	read -p "Select an action: " ACTION
 done
-[[ $ACTION == [Gg] ]] && GET_BCU ; [[ $ACTION == [Ss] ]] && SET_BCU ; [[ $ACTION == [Mm] ]] && LOCK_MPM ; [[ $ACTION == [Ff] ]] && FLASH_BIOS ; 
-[[ $ACTION == [Ll] ]] && FLASH_BIOS_LVFS ; [[ $ACTION == [Dd] ]] && CHECK_FBYTE ; [[ $ACTION == [Cc] ]] && CLEAN ; [[ $ACTION == [Qq] ]] && exit
+[[ $ACTION == [Gg] ]] && GET_BCU ; [[ $ACTION == [Ss] ]] && SET_BCU ; [[ $ACTION == [Bb] ]] && BACKUP_BCU ; [[ $ACTION == [Mm] ]] && LOCK_MPM ; [[ $ACTION == [Ff] ]] && FLASH_BIOS ; 
+[[ $ACTION == [Ll] ]] && FLASH_BIOS_LVFS ; [[ $ACTION == [Dd] ]] && CHECK_FBYTE ; [[ $ACTION == [Rr] ]] && RESTORE ; [[ $ACTION == [Qq] ]] && exit
 
 
