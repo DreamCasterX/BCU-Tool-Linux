@@ -158,15 +158,15 @@ SET_BCU() {
 
 BACKUP_BCU() {
 	cd $APP
-	[[ ! -f $PWD/HPSETUP.TXT ]] && echo -e "\n❌ ERROR: BCU file is not found!\n" && exit
+	[[ ! -f $PWD/HPSETUP.TXT ]] && echo -e "❌ ERROR: BCU file is not found!\n" && exit
 	case $PKG in
     	"apt")
-	[[ `ls /media/$USERNAME/ | wc -l` == 0 ]] && echo -e "\n❌ ERROR: USB drive is not detected!\n" && exit
-	[[ `ls /media/$USERNAME/ | wc -l` == 1 ]] && sudo cp $PWD/HPSETUP.TXT /media/$USERNAME/$(ls /media/$USERNAME) 2> /dev/null && echo -e "\n💾 BCU file has been saved to your USB drive - `echo /media/$USERNAME/$(ls /media/$USERNAME) | cut -d '/' -f4`\n"
+	[[ `ls /media/$USERNAME/ | wc -l` == 0 ]] && echo -e "❌ ERROR: USB drive is not found!\n" && exit
+	[[ `ls /media/$USERNAME/ | wc -l` == 1 ]] && sudo cp $PWD/HPSETUP.TXT /media/$USERNAME/$(ls /media/$USERNAME) 2> /dev/null && echo -e "\n💾 BCU file (HPSETUP.TXT) has been saved to your USB drive - `echo /media/$USERNAME/$(ls /media/$USERNAME) | cut -d '/' -f4`\n"
     	;;
     	"dnf")	
-	[[ `ls /run/media/$USERNAME/ | wc -l` == 0 ]] && echo -e "\n❌ ERROR: USB drive is not detected!\n" && exit
-	[[ `ls /run/media/$USERNAME/ | wc -l` == 1 ]] && sudo cp $PWD/HPSETUP.TXT /run/media/$USERNAME/$(ls /run/media/$USERNAME) 2> /dev/null && echo -e "\n💾 BCU file has been saved to your USB drive - `echo /run/media/$USERNAME/$(ls /run/media/$USERNAME) | cut -d '/' -f5`\n"
+	[[ `ls /run/media/$USERNAME/ | wc -l` == 0 ]] && echo -e "❌ ERROR: USB drive is not detected!\n" && exit
+	[[ `ls /run/media/$USERNAME/ | wc -l` == 1 ]] && sudo cp $PWD/HPSETUP.TXT /run/media/$USERNAME/$(ls /run/media/$USERNAME) 2> /dev/null && echo -e "\n💾 BCU file (HPSETUP.TXT) has been saved to your USB drive - `echo /run/media/$USERNAME/$(ls /run/media/$USERNAME) | cut -d '/' -f5`\n"
     	;;
 	esac
 }
