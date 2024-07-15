@@ -27,11 +27,6 @@ APP=$PWD/sp150953/non-rpms/hp-flash-3.24_x86_64
 [[ $EUID == 0 ]] && echo -e "⚠️ Please run as non-root user.\n" && exit
 
 
-# DOWNLOAD & EXTRACT HP LINUX TOOLS
-[[ ! -f $SPQ ]] && wget $FTP -q 
-tar xzfm $SPQ --one-top-level 2> /dev/null
-
-
 # CHECK INTERNET CONNETION
 CheckNetwork() {
 	wget -q --spider www.google.com > /dev/null
@@ -102,6 +97,11 @@ if [[ $new_version != $__version__ ]]; then
 		echo -e "\n❌ Error occured while downloading" ; exit 1
     	fi 
 fi
+
+
+# DOWNLOAD & EXTRACT HP LINUX TOOLS
+[[ ! -f $SPQ ]] && wget $FTP -q 
+tar xzfm $SPQ --one-top-level 2> /dev/null
 
 
 # INSTALL UEFI MODULE
