@@ -12,3 +12,14 @@
 ```sh
 bash HpBiosCtl.sh  
 ```
+#### [Options]
+ - `G` - Get BIOS BCU from the PC
+ - `S` - Set BIOS BCU to the PC
+ - `B` - Save the fetched BIOS BCU file to an USB drive
+ - `M` - Lock Manufacturing Programming Mode
+ - `F` - Flash BIOS (local)
+ - `L` - Update BIOS with LVFS server (remote)
+ - `D` - Decode Feature Byte
+ - `R` - Restore the settings to default
+ - `Q` - Quit the tool
+
