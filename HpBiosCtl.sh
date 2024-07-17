@@ -58,7 +58,7 @@ case $PKG in
 	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
 	 rpm -q fwupd | grep 'not installed' > /dev/null 
 	 [[ $? == 0 ]] && CheckNetwork && sudo dnf install fwupd -y || : 
-	 # [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo dnf install cabextract -y || :
+	 [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo dnf install cabextract -y || :
     ;;
 esac
 
@@ -189,7 +189,7 @@ FLASH_BIOS() {
 	[[ $(ls *.cab | wc -l) > 1 ]] && echo -e "\n❌ ERROR: Mutilple BIOS capsules found! \n" && exit
 	[[ $(ls *inf) ]] 2> /dev/null && rm -f *.inf
 	# Extract cab
-	if [[ -f /usr/bin/apt ]]; then 
+	if [[ -f /usr/bin/cabextract ]]; then 
 		cabextract --filter '*.inf' -q *.cab
 		new_bios_series=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $1}'`
 		new_bios_ver=`grep -h 'CatalogFile' *.inf | awk '{print $NF}'| awk -F '_' '{print $2}' | sed 's/\(..\)\(..\)/\1.\2./' | awk -F '00.cat' '{print $1}'`
