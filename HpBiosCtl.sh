@@ -286,7 +286,7 @@ RESTORE() {
 # USER INTERACTION
 echo -e "  \nGet BCU [G]   Set BCU [S]   Backup BCU [B]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]   Decode FeatureByte [D]\n"
 read -p "Select an action: " ACTION
-while [[ $ACTION != [GgSsBbMmFfFlDdRrQq] ]]
+while [[ $ACTION != [GgSsBbMmFfLlDdRrQq] ]]
 do
 	echo -e "Invalid input!"
 	read -p "Select an action: " ACTION
