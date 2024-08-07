@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 07/15/2024
+# CHANGE DATE: 08/07/2024
 __version__="1.6"
 
 
@@ -39,7 +39,6 @@ CheckNetwork() {
 case $PKG in
     "apt")
 	 [[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo apt update && sudo apt install mokutil -y || : 
-	 [[ ! -f /usr/bin/curl ]] && CheckNetwork && sudo apt update && sudo apt install curl -y || : 
 	 dpkg -l | grep build-essential > /dev/null 
 	 [[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
 	 dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
@@ -69,8 +68,8 @@ esac
 
 # CHECK THE LATEST VERSION
 release_url=https://api.github.com/repos/DreamCasterX/HP-BIOS-Tool-Linux/releases/latest
-new_version=$(curl -s "${release_url}" | grep '"tag_name":' | awk -F\" '{print $4}')
-release_note=$(curl -s "${release_url}" | grep '"body":' | awk -F\" '{print $4}')
+new_version=$(wget -qO- "${release_url}" | grep '"tag_name":' | awk -F\" '{print $4}')
+release_note=$(wget -qO- "${release_url}" | grep '"body":' | awk -F\" '{print $4}')
 tarball_url="https://github.com/DreamCasterX/HP-BIOS-Tool-Linux/archive/refs/tags/${new_version}.tar.gz"
 CheckNetwork
 if [[ $new_version != $__version__ ]]; then
@@ -80,7 +79,7 @@ if [[ $new_version != $__version__ ]]; then
   	sleep 2
   	echo -e "\nDownloading update..."
   	pushd "$PWD" > /dev/null 2>&1
-  	curl --silent --insecure --fail --retry-connrefused --retry 3 --retry-delay 2 --location --output ".HpBiosCtl.tar.gz" "${tarball_url}"
+  	wget --quiet --no-check-certificate --tries=3 --waitretry=2 --output-document=".HpBiosCtl.tar.gz" "${tarball_url}"
   	if [[ -e ".HpBiosCtl.tar.gz" ]]; then
 		tar -xf .HpBiosCtl.tar.gz -C "$PWD" --strip-components 1 > /dev/null 2>&1
 		rm -f .HpBiosCtl.tar.gz
