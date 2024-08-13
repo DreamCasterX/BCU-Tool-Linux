@@ -18,8 +18,9 @@
  - `B` - Save the fetched BIOS BCU file to an USB drive
  - `M` - Lock Manufacturing Programming Mode
  - `F` - Flash BIOS (local)
- - `L` - Update BIOS with LVFS server (remote)
+ - `L` - Update BIOS via LVFS public server (remote)
  - `D` - Decode Feature Byte
+ - `E` - Update BIOS via LVFS embargo tetsing (remote)
  - `R` - Restore the settings to default
  - `Q` - Quit the tool
 
