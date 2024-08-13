@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 08/08/2024
+# CHANGE DATE: 08/13/2024
 __version__="1.6"
 
 
@@ -209,7 +209,7 @@ $(sudo dmidecode -t 0 | grep -A1 Version:)\n"
     fi
 }
 
-FLASH_BIOS_LVFS() {
+LVFS_PUBLIC() {
     CheckNetwork
     fwupdmgr refresh --force
     deviceID=`fwupdmgr get-devices 2> /dev/null | grep -EA1 'System Firmware:' | grep -w 'Device ID:' | awk '{print $NF}'`
@@ -217,6 +217,26 @@ FLASH_BIOS_LVFS() {
     [[ $? == 2 ]] && echo -e "\nNo BIOS updates available on the LVFS\n" && exit
     fwupdmgr update $deviceID
     # fwupdmgr get-releases $deviceID  # Display all BIOS releases on LVFS
+}
+
+LVFS_EMBARGO() {
+    cd $BIN/../..
+    ! ls | grep embargo.conf > /dev/null && echo -e "\n❌ ERROR: No embargo.conf found! \n" && exit
+    CheckNetwork
+    FWUPD_VER=`fwupdmgr --version | grep -w 'compile   org.freedesktop.fwupd' | awk '{print $3}' | cut -d '.' -f2`
+    if [[ $FWUPD_VER -lt 8 ]]; then  # must be newer than 1.7.9
+        sudo apt remove fwupd --purge -y
+        sudo snap install fwupd -y
+        if [[ $FWUPD_VER -lt 8 ]]; then
+            echo -e "⚠️ Please reboot the system to apply the chnages\n" && exit 0
+        fi
+        sudo cp $PWD/embargo.conf /var/snap/fwupd/common/var/lib/fwupd/remotes.d
+    else
+        sudo cp $PWD/embargo.conf /etc/fwupd/remotes.d
+    fi
+    fwupdmgr refresh --force
+    fwupdmgr get-updates -y
+    fwupdmgr update  
 }
 
 CHECK_FBYTE() {
@@ -283,14 +303,14 @@ RESTORE() {
 
 
 # USER INTERACTION
-echo -e "  \nGet BCU [G]   Set BCU [S]   Backup BCU [B]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]   Decode FeatureByte [D]\n"
+echo -e "  \nGet BCU [G]   Set BCU [S]   Backup BCU [B]   MPM Lock [M]   Flash BIOS [F]   LVFS Update [L]   Decode FeatureByte [D]   Embargo Testing [E]\n"
 read -p "Select an action: " ACTION
-while [[ $ACTION != [GgSsBbMmFfLlDdRrQq] ]]
+while [[ $ACTION != [GgSsBbMmFfLlDdEeRrQq] ]]
 do
     echo -e "Invalid input!"
     read -p "Select an action: " ACTION
 done
 [[ $ACTION == [Gg] ]] && GET_BCU ; [[ $ACTION == [Ss] ]] && SET_BCU ; [[ $ACTION == [Bb] ]] && BACKUP_BCU ; [[ $ACTION == [Mm] ]] && LOCK_MPM ; [[ $ACTION == [Ff] ]] && FLASH_BIOS ; 
-[[ $ACTION == [Ll] ]] && FLASH_BIOS_LVFS ; [[ $ACTION == [Dd] ]] && CHECK_FBYTE ; [[ $ACTION == [Rr] ]] && RESTORE ; [[ $ACTION == [Qq] ]] && exit
+[[ $ACTION == [Ll] ]] && LVFS_PUBLIC ; [[ $ACTION == [Dd] ]] && CHECK_FBYTE ; [[ $ACTION == [Ee] ]] && LVFS_EMBARGO ; [[ $ACTION == [Rr] ]] && RESTORE ; [[ $ACTION == [Qq] ]] && exit
 
 
