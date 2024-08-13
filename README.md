@@ -10,7 +10,7 @@
 ### ------------------------------------------------------------------------------
 #### [HOW TO USE]
 ```sh
-bash HpBiosCtl.sh  
+./HpBiosCtl.sh  
 ```
 #### [Options]
  - `G` - Get BIOS BCU from the PC
