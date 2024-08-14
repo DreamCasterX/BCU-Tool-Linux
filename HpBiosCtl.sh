@@ -266,6 +266,8 @@ CHECK_FBYTE() {
     FB_noWWAN='qd'    # No WWAN
     FB_HPSR='jh'      # HP Sure Recover
     FB_noHPSR='sy'    # Disable HP Sure Recover by default
+    FB_VPRO='pV'      # Intel Vpro fully enabled
+    FB_noVPRO='pT'    # Intel Vpro setting disabled
     FB_string=`sudo dmidecode -t 11 | grep FBYTE | awk -F '#' '{print $2}'`
     echo -e "\nThe following features are supported or enabled in FBYTE:\n" 
     [[ $FB_string == *$FB_NB* ]] && echo -e "    ✅ Chassis: Notebook\n"
@@ -286,12 +288,14 @@ CHECK_FBYTE() {
     [[ $FB_string == *$FB_SPK* ]] && echo -e "    ✅ Internal speaker: YES\n"
     [[ $FB_string == *$FB_noSPK* ]] && echo -e "    ❌ No internal speaker\n"
     [[ $FB_string == *$FB_noMIC* ]] && echo -e "    ❌ No internal MIC\n"
-    [[ $FB_string == *$FB_AED* ]] && echo -e "    ⚠️ Show recovery disk (eM🗑MC)\n"
+    [[ $FB_string == *$FB_AED* ]] && echo -e "    ⚠️ Show recovery disk (eMMC)\n"
     [[ $FB_string == *$FB_WWAN* ]] && echo -e "    ✅ WWAN\n"
     [[ $FB_string == *$FB_WWAN_USB* ]] && echo -e "    ✅ WWAN(USB)\n"
     [[ $FB_string == *$FB_noWWAN* ]] && echo -e "    ❌ No WWAN\n"
     [[ $FB_string == *$FB_HPSR* ]] && echo -e "    ✅ HP Sure Recover\n"
     [[ $FB_string == *$FB_noHPSR* ]] && echo -e "    ❌️ No HP Sure Recover\n"
+    [[ $FB_string == *$FB_VPRO* ]] && echo -e "    ✅ Intel vPro enabled with AMT\n"
+    [[ $FB_string == *$FB_noVPRO* ]] && echo -e "    ❌️  Intel vPro setting is disabled\n"
 }
 
 # DELETE UEFI MODULE AND UTILITY (For debug use) 
