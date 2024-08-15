@@ -198,8 +198,8 @@ FLASH_BIOS() {
     echo -e "\nCurrent BIOS info: 
 $(sudo dmidecode -t 0 | grep -A1 Version:)\n"
     echo -e "New BIOS info: 
-    Version: $new_bios_series Ver. $new_bios_ver
-    Release Date: $new_bios_date"
+        Version: $new_bios_series Ver. $new_bios_ver
+        Release Date: $new_bios_date"
     if [[ -f /etc/fwupd/daemon.conf ]]; then
         sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf
         sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force || (sudo sed -i 's/OnlyTrusted=true/OnlyTrusted=false/' /etc/fwupd/daemon.conf 2> /dev/null && sudo fwupdmgr install $PWD/*.cab --allow-reinstall --allow-older --force)
