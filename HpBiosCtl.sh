@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 08/13/2024
+# CHANGE DATE: 08/21/2024
 __version__="1.6"
 
 
@@ -39,24 +39,18 @@ CheckNetwork() {
 case $PKG in
     "apt")
         [[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo apt update && sudo apt install mokutil -y || : 
-        dpkg -l | grep build-essential > /dev/null 
-        [[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
-        dpkg -l | grep linux-headers-$(uname -r) > /dev/null 
-        [[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
-        dpkg -l | grep fwupd > /dev/null 
-        [[ $? != 0 ]] && CheckNetwork && sudo apt update && sudo apt install fwupd -y || : 
+        ! dpkg -l | grep build-essential > /dev/null && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
+        ! dpkg -l | grep linux-headers-$(uname -r) > /dev/null && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
+        ! dpkg -l | grep fwupd > /dev/null && CheckNetwork && sudo apt update && sudo apt install fwupd -y || : 
         [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo apt update && sudo apt install cabextract -y || : 
         [[ ! -f /usr/bin/gcc-12 ]] && CheckNetwork && sudo apt update && sudo apt install gcc-12 -y || :  # for 22.04.4 LTS generic (6.5.0-28-generic)
         ;;
     "dnf")
         [[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo dnf install mokutil -y || :
         [[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
-        rpm -q kernel-devel-$(uname -r) | grep 'not installed' > /dev/null 
-        [[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-devel-$(uname -r) -y || :
-        rpm -q kernel-headers-$(uname -r) | grep 'not installed' > /dev/null 
-        [[ $? == 0 ]] && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
-        rpm -q fwupd | grep 'not installed' > /dev/null 
-        [[ $? == 0 ]] && CheckNetwork && sudo dnf install fwupd -y || : 
+        rpm -q kernel-devel-$(uname -r) | grep 'not installed' > /dev/null && CheckNetwork && sudo dnf install kernel-devel-$(uname -r) -y || :
+        rpm -q kernel-headers-$(uname -r) | grep 'not installed' > /dev/null && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
+        rpm -q fwupd | grep 'not installed' > /dev/null && CheckNetwork && sudo dnf install fwupd -y || : 
         [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo dnf install cabextract -y || :
         ;;
 esac
