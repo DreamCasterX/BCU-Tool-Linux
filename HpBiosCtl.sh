@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 08/21/2024
+# CHANGE DATE: 09/03/2024
 __version__="1.6"
 
 
@@ -12,7 +12,8 @@ __version__="1.6"
 
 
 # HOW TO USE:
-# Run `./HpBiosSetup.sh`
+# 1. Connect to Internet
+# 2. Run `./HpBiosSetup.sh`
 
 
 # SET FILE PATH
@@ -262,6 +263,8 @@ CHECK_FBYTE() {
     FB_noHPSR='sy'    # Disable HP Sure Recover by default
     FB_VPRO='pV'      # Intel Vpro fully enabled
     FB_noVPRO='pT'    # Intel Vpro setting disabled
+    FB_NFC='b8'       # NFC is supported/Present
+    FB_noNFC='aE'     # Kill NFC
     FB_string=`sudo dmidecode -t 11 | grep FBYTE | awk -F '#' '{print $2}'`
     echo -e "\nThe following features are supported or enabled in FBYTE:\n" 
     [[ $FB_string == *$FB_NB* ]] && echo -e "    ✅ Chassis: Notebook\n"
@@ -290,6 +293,8 @@ CHECK_FBYTE() {
     [[ $FB_string == *$FB_noHPSR* ]] && echo -e "    ❌️ No HP Sure Recover\n"
     [[ $FB_string == *$FB_VPRO* ]] && echo -e "    ✅ Intel vPro enabled with AMT\n"
     [[ $FB_string == *$FB_noVPRO* ]] && echo -e "    ❌️  Intel vPro setting is disabled\n"
+    [[ $FB_string == *$FB_NFC* ]] && echo -e "    ✅ NFC\n"
+    [[ $FB_string == *$FB_noNFC* ]] && echo -e "    ❌️  No NFC\n"
 }
 
 # DELETE UEFI MODULE AND UTILITY (For debug use) 
