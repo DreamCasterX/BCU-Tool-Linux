@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 09/03/2024
+# CHANGE DATE: 10/01/2024
 __version__="1.6"
 
 
@@ -17,42 +17,46 @@ __version__="1.6"
 
 
 # SET FILE PATH
-FTP=https://ftp.hp.com/pub/softpaq/sp150501-151000/sp150953.tgz
-SPQ=$PWD/sp150953.tgz
-BIN=$PWD/sp150953/non-rpms
-MOD=$PWD/sp150953/non-rpms/hpuefi-mod-3.05
-APP=$PWD/sp150953/non-rpms/hp-flash-3.24_x86_64
+readonly FTP=https://ftp.hp.com/pub/softpaq/sp150501-151000/sp150953.tgz
+readonly SPQ=$PWD/sp150953.tgz
+readonly BIN=$PWD/sp150953/non-rpms
+readonly MOD=$PWD/sp150953/non-rpms/hpuefi-mod-3.05
+readonly APP=$PWD/sp150953/non-rpms/hp-flash-3.24_x86_64
 
+
+# CHECK INTERNET CONNECTION
+CheckNetwork() {
+    ! wget -q --spider www.google.com > /dev/null && echo -e "❌ No Internet connection! Check your network and retry.\n" && exit || :
+}
 
 # RESTRICT USER ACCOUNT
 [[ $EUID == 0 ]] && echo -e "⚠️ Please run as non-root user.\n" && exit
 
 
-# CHECK INTERNET CONNETION
-CheckNetwork() {
-    wget -q --spider www.google.com > /dev/null
-    [[ $? != 0 ]] && echo -e "❌ No Internet connection! Check your network and retry.\n" && exit || :
-}
-
-
-# INTALL DEPENDENCIES
+# INSTALL DEPENDENCIES
 [[ -f /usr/bin/apt ]] && PKG=apt || PKG=dnf
 case $PKG in
     "apt")
-        [[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo apt update && sudo apt install mokutil -y || : 
+        for cmd in mokutil cabextract gcc-12; do
+            if ! command -v "$cmd" > /dev/null 2>&1; then
+                CheckNetwork
+                sudo apt update && sudo apt install $cmd -y || echo "❌ Error installing $cmd"
+            fi
+        done
         ! dpkg -l | grep build-essential > /dev/null && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
         ! dpkg -l | grep linux-headers-$(uname -r) > /dev/null && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
         ! dpkg -l | grep fwupd > /dev/null && CheckNetwork && sudo apt update && sudo apt install fwupd -y || : 
-        [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo apt update && sudo apt install cabextract -y || : 
-        [[ ! -f /usr/bin/gcc-12 ]] && CheckNetwork && sudo apt update && sudo apt install gcc-12 -y || :  # for 22.04.4 LTS generic (6.5.0-28-generic)
         ;;
     "dnf")
-        [[ ! -f /usr/bin/mokutil ]] && CheckNetwork && sudo dnf install mokutil -y || :
-        [[ ! -f /usr/bin/make ]] && CheckNetwork && sudo dnf install make -y || :
+        for cmd in mokutil cabextract make; do
+            if ! command -v "$cmd" > /dev/null 2>&1; then
+                CheckNetwork
+                sudo dnf install $cmd -y || echo "❌ Error installing $cmd"
+            fi
+        done
         rpm -q kernel-devel-$(uname -r) | grep 'not installed' > /dev/null && CheckNetwork && sudo dnf install kernel-devel-$(uname -r) -y || :
         rpm -q kernel-headers-$(uname -r) | grep 'not installed' > /dev/null && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
         rpm -q fwupd | grep 'not installed' > /dev/null && CheckNetwork && sudo dnf install fwupd -y || : 
-        [[ ! -f /usr/bin/cabextract ]] && CheckNetwork && sudo dnf install cabextract -y || :
         ;;
 esac
 
