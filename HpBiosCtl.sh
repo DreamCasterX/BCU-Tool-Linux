@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 10/01/2024
+# CHANGE DATE: 10/17/2024
 __version__="1.6"
 
 
@@ -43,9 +43,12 @@ case $PKG in
                 sudo apt update && sudo apt install $cmd -y || echo "❌ Error installing $cmd"
             fi
         done
-        ! dpkg -l | grep build-essential > /dev/null && CheckNetwork && sudo apt update && sudo apt install build-essential -y || : 
-        ! dpkg -l | grep linux-headers-$(uname -r) > /dev/null && CheckNetwork && sudo apt update && sudo apt install linux-headers-$(uname -r) -y || :
-        ! dpkg -l | grep fwupd > /dev/null && CheckNetwork && sudo apt update && sudo apt install fwupd -y || : 
+        for lib in build-essential linux-headers-$(uname -r) fwupd; do
+            if ! dpkg -l | grep "$lib" > /dev/null; then
+                CheckNetwork
+                sudo apt update && sudo apt install $lib -y || echo "❌ Error installing $lib"
+            fi
+        done
         ;;
     "dnf")
         for cmd in mokutil cabextract make; do
@@ -54,9 +57,12 @@ case $PKG in
                 sudo dnf install $cmd -y || echo "❌ Error installing $cmd"
             fi
         done
-        rpm -q kernel-devel-$(uname -r) | grep 'not installed' > /dev/null && CheckNetwork && sudo dnf install kernel-devel-$(uname -r) -y || :
-        rpm -q kernel-headers-$(uname -r) | grep 'not installed' > /dev/null && CheckNetwork && sudo dnf install kernel-headers-$(uname -r) -y || :
-        rpm -q fwupd | grep 'not installed' > /dev/null && CheckNetwork && sudo dnf install fwupd -y || : 
+        for lib in kernel-devel-$(uname -r) kernel-headers-$(uname -r) fwupd; do
+            if rpm -q "$lib" | grep 'not installed' > /dev/null; then
+                CheckNetwork
+                sudo dnf install $lib -y || echo "❌ Error installing $lib"
+            fi
+        done
         ;;
 esac
 
