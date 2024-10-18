@@ -13,7 +13,7 @@ __version__="1.7"
 
 # HOW TO USE:
 # 1. Connect to Internet
-# 2. Run `./HpBiosSetup.sh`
+# 2. Run `./HpBiosCtl.sh`
 
 
 # SET FILE PATH
