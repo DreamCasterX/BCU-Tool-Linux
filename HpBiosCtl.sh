@@ -2,7 +2,7 @@
 
 # CREATOR: mike.lu@hp.com
 # CHANGE DATE: 10/18/2024
-__version__="1.6"
+__version__="1.7"
 
 
 # NOTE:
@@ -276,35 +276,40 @@ CHECK_FBYTE() {
     FB_NFC='b8'       # NFC is supported/Present
     FB_noNFC='aE'     # Kill NFC
     FB_string=`sudo dmidecode -t 11 | grep FBYTE | awk -F '#' '{print $2}' | cut -d ';' -f1`
-    echo -e "\nThe following features are supported or enabled in FBYTE:\n" 
-    [[ $FB_string == $FB_NB ]] && echo -e "    ✅ Chassis: Notebook\n"
-    [[ $FB_string == *$FB_AIO* ]] && echo -e "    ✅ Chassis: AIO\n"
-    [[ $FB_string == *$FB_INTC* ]] && echo -e "    ✅ Arch: Intel\n"
-    [[ $FB_string == *$FB_AMD* ]] && echo -e "    ✅ Arch: AMD\n"
-    [[ $FB_string == *$FB_W11* ]] && echo -e "    ✅ OS: Windows 11\n"
-    [[ $FB_string == *$FB_UBU* ]] && echo -e "    ✅ OS: Ubuntu\n"
-    [[ $FB_string == *$FB_U2004* ]] && echo -e "    ✅ OS: Ubuntu 20.04\n"
-    [[ $FB_string == *$FB_U2204* ]] && echo -e "    ✅ OS: Ubuntu 22.04\n"
-    [[ $FB_string == *$FB_U2404* ]] && echo -e "    ✅ OS: Ubuntu 24.04\n"
-    [[ $FB_string == *$FB_Free* ]] && echo -e "    ✅ OS: FreeDOS\n"
-    [[ $FB_string == *$FB_TS* ]] && echo -e "    ✅ Touch screen\n"
-    [[ $FB_string == *$FB_noTS* ]] && echo -e "    ❌ Non-Touch screen\n"
-    [[ $FB_string == *$FB_OLED* ]] && echo -e "    ✅ OLED panel\n"
-    [[ $FB_string == *$FB_Camera* ]] && echo -e "    ✅ Camera\n"
-    [[ $FB_string == *$FB_CRD* ]] && echo -e "    ✅ Card Reader\n"
-    [[ $FB_string == *$FB_SPK* ]] && echo -e "    ✅ Internal speaker: YES\n"
-    [[ $FB_string == *$FB_noSPK* ]] && echo -e "    ❌ No internal speaker\n"
-    [[ $FB_string == *$FB_noMIC* ]] && echo -e "    ❌ No internal MIC\n"
-    [[ $FB_string == *$FB_AED* ]] && echo -e "    ⚠️ Show recovery disk (eMMC)\n"
-    [[ $FB_string == *$FB_WWAN* ]] && echo -e "    ✅ WWAN\n"
-    [[ $FB_string == *$FB_WWAN_USB* ]] && echo -e "    ✅ WWAN(USB)\n"
-    [[ $FB_string == *$FB_noWWAN* ]] && echo -e "    ❌ No WWAN\n"
-    [[ $FB_string == *$FB_HPSR* ]] && echo -e "    ✅ HP Sure Recover\n"
-    [[ $FB_string == *$FB_noHPSR* ]] && echo -e "    ❌️ No HP Sure Recover\n"
-    [[ $FB_string == *$FB_VPRO* ]] && echo -e "    ✅ Intel vPro enabled with AMT\n"
-    [[ $FB_string == *$FB_noVPRO* ]] && echo -e "    ❌️  Intel vPro setting is disabled\n"
-    [[ $FB_string == *$FB_NFC* ]] && echo -e "    ✅ NFC\n"
-    [[ $FB_string == *$FB_noNFC* ]] && echo -e "    ❌️  No NFC\n"
+    echo -e "\nThe following features are supported or enabled in FBYTE:\n"
+    for (( i=0; i<${#FB_string}; i+=2 )); do
+        pair=${FB_string:$i:2}
+        case $pair in
+            $FB_NB) echo -e "    ✅ Chassis: Notebook\n" ;;
+            $FB_AIO) echo -e "    ✅ Chassis: AIO\n" ;;
+            $FB_INTC) echo -e "    ✅ Arch: Intel\n" ;;
+            $FB_AMD) echo -e "    ✅ Arch: AMD\n" ;;
+    		$FB_W11) echo -e "    ✅ OS: Windows 11\n" ;;
+            $FB_UBU) echo -e "    ✅ OS: Ubuntu\n" ;;
+            $FB_U2004) echo -e "    ✅ OS: Ubuntu 20.04\n" ;;
+    		$FB_U2204) echo -e "    ✅ OS: Ubuntu 22.04\n" ;;
+    		$FB_U2404) echo -e "    ✅ OS: Ubuntu 24.04\n" ;;
+    		$FB_Free) echo -e "    ✅ OS: FreeDOS\n" ;;
+    		$FB_TS) echo -e "    ✅ Touch screen\n" ;;
+    		$FB_noTS) echo -e "    ❌ Non-Touch screen\n" ;;
+    		$FB_OLED) echo -e "    ✅ OLED panel\n" ;;
+    		$FB_Camera) echo -e "    ✅ Camera\n" ;;
+    		$FB_CRD) echo -e "    ✅ Card Reader\n" ;;
+    		$FB_SPK) echo -e "    ✅ Internal speaker: YES\n" ;;
+    		$FB_noSPK) echo -e "    ❌ No internal speaker\n" ;;
+    		$FB_noMIC) echo -e "    ❌ No internal MIC\n" ;;
+    		$FB_AED) echo -e "    ⚠️  Show recovery disk (eMMC)\n" ;;
+    		$FB_WWAN) echo -e "    ✅ WWAN\n" ;;
+    		$FB_WWAN_USB) echo -e "    ✅ WWAN(USB)\n" ;;
+    		$FB_noWWAN) echo -e "    ❌ No WWAN\n" ;;
+    		$FB_HPSR) echo -e "    ✅ HP Sure Recover\n" ;;
+    		$FB_noHPSR) echo -e "    ⚠️  HP Sure Recover disabled in BIOS by default\n" ;;
+    		$FB_VPRO) echo -e "    ✅ Intel vPro enabled with AMT\n" ;;
+    		$FB_noVPRO) echo -e "    ❌️  Intel vPro setting is disabled\n" ;;
+    		$FB_NFC) echo -e "    ✅ NFC\n" ;;
+    		$FB_noNFC) echo -e "    ❌️  No NFC\n" ;;
+        esac
+    done
 }
 
 # DELETE UEFI MODULE AND UTILITY (For debug use) 
