@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CREATOR: mike.lu@hp.com
-# CHANGE DATE: 10/17/2024
+# CHANGE DATE: 10/18/2024
 __version__="1.6"
 
 
@@ -275,9 +275,9 @@ CHECK_FBYTE() {
     FB_noVPRO='pT'    # Intel Vpro setting disabled
     FB_NFC='b8'       # NFC is supported/Present
     FB_noNFC='aE'     # Kill NFC
-    FB_string=`sudo dmidecode -t 11 | grep FBYTE | awk -F '#' '{print $2}'`
+    FB_string=`sudo dmidecode -t 11 | grep FBYTE | awk -F '#' '{print $2}' | cut -d ';' -f1`
     echo -e "\nThe following features are supported or enabled in FBYTE:\n" 
-    [[ $FB_string == *$FB_NB* ]] && echo -e "    ✅ Chassis: Notebook\n"
+    [[ $FB_string == $FB_NB ]] && echo -e "    ✅ Chassis: Notebook\n"
     [[ $FB_string == *$FB_AIO* ]] && echo -e "    ✅ Chassis: AIO\n"
     [[ $FB_string == *$FB_INTC* ]] && echo -e "    ✅ Arch: Intel\n"
     [[ $FB_string == *$FB_AMD* ]] && echo -e "    ✅ Arch: AMD\n"
